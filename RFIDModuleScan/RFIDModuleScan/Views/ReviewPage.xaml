@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:usercontrols="clr-namespace:RFIDModuleScan.UserControls;assembly=RFIDModuleScan"   
+             xmlns:converter="clr-namespace:RFIDModuleScan.Converters"
+             x:Class="RFIDModuleScan.Views.ReviewPage" Title="Review" Padding="0"  Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converter:InvalidIntStringColorConverter x:Key="InvalidIntStringColorConverter"/>
+            <converter:InvalidIntStringTextColorConverter x:Key="InvalidIntStringTextColorConverter"/>
+            <converter:EmptyStringInvisibleConverter x:Key="EmptyStringInvisibleConverter"/>
+            <converter:BoolToArrowImageConverter x:Key="BoolToArrowImageConverter"/>
+            <converter:NotConverter x:Key="NotConverter"/>
+            <converter:EmptyStringToColorConverter x:Key="EmptyStringToColorConverter"/>
+            <converter:EmptyStringVisibleConverter x:Key="EmptyStringVisibleConverter"/>
+            <converter:InvalidRequiredIntMessageConverter x:Key="InvalidRequiredIntMessageConverter"/>
+            <converter:InvalidRequiredIntMessageVisibleConverter x:Key="InvalidRequiredIntMessageVisibleConverter"/>
+            <converter:ModuleCountToTextConverter x:Key="ModuleCountToTextConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <AbsoluteLayout>
+        <Grid x:Name="rootContentView" Margin="0" Padding="5" RowSpacing="5" ColumnSpacing="5" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="{Binding IsBusy, Converter={StaticResource Key=NotConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+
+            <Label Text="{Binding Grower}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="4" FontAttributes="Bold" />
+            <Label Text="{Binding Farm}"   Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" FontAttributes="Bold"/>
+            <Label Text="{Binding Field}"  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4" FontAttributes="Bold"/>
+
+            <StackLayout Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2">
+                <Label Text="Modules:" FontAttributes="Bold"/>
+                <Label Text="{Binding ModuleCount}"/>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="2" HorizontalOptions="EndAndExpand">
+                <Label Text="Modules without GPS:" FontAttributes="Bold"/>
+                <Label Text="{Binding ModulesWithNoGPS}"/>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2">
+                <Label Text="Loads:" FontAttributes="Bold"/>
+                <Label Text="{Binding LoadCount}"/>
+            </StackLayout>
+
+            <StackLayout Orientation="Horizontal" Grid.Column="2" Grid.Row="4"  Grid.ColumnSpan="2" HorizontalOptions="EndAndExpand">
+                <Label Text="Reader:" FontAttributes="Bold"/>
+                <Label Text="{Binding ConnectionMsg}"/>
+            </StackLayout>
+
+            <Button Text="Transmit" Command="{Binding TransmitCommand}" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Style="{StaticResource primaryTabButton}" HorizontalOptions="FillAndExpand" />
+            <Button x:Name="btnFind" Text="Find" Grid.Column="2" Grid.Row="5" Grid.ColumnSpan="2" Style="{StaticResource primaryTabButton}" HorizontalOptions="FillAndExpand" Clicked="btnFind_Clicked" />
+            <Button x:Name="btnCameraFind" Text="Find with Camera" Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="4" Style="{StaticResource primaryTabButton}" HorizontalOptions="FillAndExpand" Command="{Binding FindWithCameraCommand}" />
+            
+
+            <ScrollView x:Name="scrollView"  Grid.Column="0" Grid.Row="7"  Grid.ColumnSpan="4">
+                <StackLayout Orientation="Vertical">
+                    <usercontrols:ReviewLoadsView  x:Name="loadsList" IsVisible="True"  />
+                </StackLayout>
+            </ScrollView>
+        </Grid>
+        <usercontrols:FindDialogView x:Name="findDialog" BindingContext="{Binding .}"  SearchCommand="{Binding ManualSearchCommand}"  AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="False"  />
+        <usercontrols:BusyIndicatorView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BusyMessage="{Binding BusyMessage}" IsVisible="{Binding IsBusy}" />
+    </AbsoluteLayout>
+</ContentPage>

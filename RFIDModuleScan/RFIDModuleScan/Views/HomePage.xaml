@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:usercontrols="clr-namespace:RFIDModuleScan.UserControls;assembly=RFIDModuleScan"   
+             x:Class="RFIDModuleScan.Views.HomePage" Style="{StaticResource mainPage}" Title="Home" Appearing="ContentPage_Appearing">
+    <AbsoluteLayout>
+        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" Padding="0">
+            <StackLayout Orientation="Vertical" Padding="10,0,10,0" Spacing="15">
+                <Label Text="{Binding MainText}" VerticalOptions="Center" HorizontalOptions="Center" />
+                <StackLayout>
+                    <Button x:Name="btnContinueScan" Text="Continue Load Scan" Command="{Binding NavigateToAllScansPage}" Style="{StaticResource mainMenuButton}" />
+                    <Button x:Name="btnNewScan" Text="New Load Scan"  Command="{Binding NavigateToScanPage}" Style="{StaticResource mainMenuButton}" />
+                    <Button x:Name="btnNewDropScan" Text="Module Inventory List"  Command="{Binding NavigateToDropScanPage}" Style="{StaticResource mainMenuButton}" />
+                    <Button x:Name="btnSettings" Text="Settings" Command="{Binding NavigateToSettingsPage}" Style="{StaticResource mainMenuButton}" />
+                    <Button x:Name="btnTransmitAll" Text="Backup Data" Style="{StaticResource mainMenuButton}" Command="{Binding TransmitAllCommand}" IsVisible="{Binding HasData}" />
+                    <Button x:Name="btnClearData" Text="Clear Data" Style="{StaticResource mainMenuButton}" Clicked="btnClearData_Clicked" IsVisible="{Binding HasData}"/>
+                    <Button Text="About" Style="{StaticResource mainMenuButton}" Command="{Binding AboutCommand}"  />
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+        <usercontrols:BusyIndicatorView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BusyMessage="{Binding BusyMessage}" IsVisible="{Binding IsBusy}" />
+        <usercontrols:MessagePromptView x:Name="msgPromptView" BindingContext="{Binding .}"  OkCommand="{Binding DeleteAllCommand}"  AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="False"  />
+    </AbsoluteLayout>
+</ContentPage>

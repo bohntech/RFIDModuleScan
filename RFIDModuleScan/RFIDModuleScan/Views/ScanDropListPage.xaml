@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"       
+             xmlns:custom="clr-namespace:RFIDModuleScan.Layouts;assembly=RFIDModuleScan"   
+             xmlns:usercontrols="clr-namespace:RFIDModuleScan.UserControls;assembly=RFIDModuleScan"   
+             xmlns:converter="clr-namespace:RFIDModuleScan.Converters"
+             x:Class="RFIDModuleScan.Views.ScanDropListPage" Style="{StaticResource mainPage}" Title="Module Inventory List"  Padding="0">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converter:InvalidIntStringColorConverter x:Key="InvalidIntStringColorConverter"/>
+            <converter:InvalidIntStringTextColorConverter x:Key="InvalidIntStringTextColorConverter"/>
+            <converter:EmptyStringInvisibleConverter x:Key="EmptyStringInvisibleConverter"/>
+            <converter:BoolToArrowImageConverter x:Key="BoolToArrowImageConverter"/>
+            <converter:NotConverter x:Key="NotConverter"/>
+            <converter:EmptyStringToColorConverter x:Key="EmptyStringToColorConverter"/>
+            <converter:EmptyStringVisibleConverter x:Key="EmptyStringVisibleConverter"/>
+            <converter:InvalidRequiredIntMessageConverter x:Key="InvalidRequiredIntMessageConverter"/>
+            <converter:InvalidRequiredIntMessageVisibleConverter x:Key="InvalidRequiredIntMessageVisibleConverter"/>
+            <converter:ModuleCountToTextConverter x:Key="ModuleCountToTextConverter"/>
+            <converter:IntToBoolConverter x:Key="IntToBoolConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <AbsoluteLayout>
+
+        <Grid x:Name="rootContentView" Margin="0" Padding="0" RowSpacing="0" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="{Binding IsBusy, Converter={StaticResource Key=NotConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <controls:ExtendedButton x:Name="btnSettingsToggle" 
+                                     Grid.Row="0" 
+                                     Grid.Column="0" 
+                                     Margin="0" 
+                                     HorizontalOptions="FillAndExpand"  
+                                     Image="{Binding IsEditMode, Converter={StaticResource BoolToArrowImageConverter}}" 
+                                     BackgroundColor="#B0B0B0"  
+                                     Text="Field Settings" 
+                                     HorizontalContentAlignment="Start" 
+                                     BorderColor="#B0B0B0" 
+                                     BorderWidth="1" 
+                                     BorderRadius="0" 
+                                     Command="{Binding ToggleEditCommand}" />
+
+            <StackLayout Padding="5,5,5,0" Grid.Row="1" Grid.Column="0" IsVisible="{Binding IsEditMode}" MinimumHeightRequest="0" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <Label Text="Grower: " Grid.Row="0" Grid.Column="0" VerticalOptions="Center" />
+                    <Entry Grid.Row="0" Grid.Column="1" Placeholder="Enter grower" Text="{Binding Grower, Mode=TwoWay}"   
+                               BackgroundColor="{Binding Grower, Converter={StaticResource EmptyStringToColorConverter}}" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding Grower, Converter={StaticResource EmptyStringVisibleConverter}}" />
+
+                    <Label Text="Farm: " Grid.Row="2" Grid.Column="0" VerticalOptions="Center" />
+                    <Entry Grid.Row="2" Grid.Column="1" Placeholder="Enter farm" Text="{Binding Farm, Mode=TwoWay}"  HorizontalOptions="Fill" BackgroundColor="{Binding Farm, Converter={StaticResource EmptyStringToColorConverter}}" />
+                    <Label Grid.Row="3" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding Farm, Converter={StaticResource EmptyStringVisibleConverter}}" />
+
+                    <Label Text="Field: " Grid.Row="4" Grid.Column="0" VerticalOptions="Center" />
+                    <Entry Grid.Row="4" Grid.Column="1" Placeholder="Enter field" Text="{Binding Field, Mode=TwoWay}"  HorizontalOptions="Fill" BackgroundColor="{Binding Field, Converter={StaticResource EmptyStringToColorConverter}}"/>
+                    <Label Grid.Row="5" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding Field, Converter={StaticResource EmptyStringVisibleConverter}}" />
+
+                    <Label Text="Location: " Grid.Row="6" Grid.Column="0" VerticalOptions="Center" />
+                    <Entry Grid.Row="6" Grid.Column="1" Placeholder="Enter scan location" Text="{Binding ScanLocation, Mode=TwoWay}"  HorizontalOptions="Fill" BackgroundColor="{Binding ScanLocation, Converter={StaticResource EmptyStringToColorConverter}}"/>
+                    <Label Grid.Row="7" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding ScanLocation, Converter={StaticResource EmptyStringVisibleConverter}}" />
+
+                </Grid>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Row="0" Grid.Column="0" Text="Save" Command="{Binding SaveCommand}" Style="{StaticResource primaryButton}" HorizontalOptions="FillAndExpand" />
+                    <Button Grid.Row="0" Grid.Column="1" Text="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource primaryButton}"  HorizontalOptions="FillAndExpand" />
+                    
+                </Grid>
+            </StackLayout>
+
+            <Grid Grid.Row="2" Grid.Column="0" Padding="5" IsVisible="{Binding IsEditMode, Converter={StaticResource NotConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="btnDelete" Text="Delete S/Ns" Grid.Row="0" Grid.Column="0"  Style="{StaticResource primaryTabButton}" HorizontalOptions="FillAndExpand"  Clicked="btnDelete_Clicked" />
+                <Button Text="Transmit" Command="{Binding TransmitCommand}" Grid.Row="0" Grid.Column="1" Style="{StaticResource primaryTabButton}" IsVisible="{Binding ModuleCount, Converter={StaticResource IntToBoolConverter}}" HorizontalOptions="FillAndExpand"/>
+                <Button x:Name="btnDeleteAll" Text="Delete all" Grid.Row="0" Grid.Column="2"  Style="{StaticResource primaryTabButton}" HorizontalOptions="FillAndExpand"  Clicked="btnDeleteAll_Clicked" />
+                <Button x:Name="btnOpticalScan" Text="Camera" Grid.Row="1" Grid.Column="0" Style="{StaticResource primaryTabButton}" HorizontalOptions="FillAndExpand" Command="{Binding StartOpticalScanCommand}" />
+                <Grid Grid.Row="2" Grid.Column="0"  Grid.ColumnSpan="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackLayout Orientation="Horizontal" Grid.Column="0" Grid.Row="0" HorizontalOptions="Start" >
+                        <Label Text="Modules: " FontSize="Medium"  FontAttributes="Bold" />
+                        <Label Text="{Binding ModuleCount}" FontSize="Medium"/>
+                    </StackLayout>                   
+                </Grid>
+                <Grid Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />                        
+                    </Grid.ColumnDefinitions>
+                    <StackLayout Orientation="Horizontal" Grid.Column="0" Grid.Row="0" HorizontalOptions="Start">
+                        <Label Text="GPS:" FontSize="Micro"  FontAttributes="Bold" />
+                        <Label Text="{Binding GPSMessage}" FontSize="Micro" />
+                        <Label Text="Reader:" FontSize="Micro" FontAttributes="Bold"/>
+                        <Label Text="{Binding ConnectionMessage}" FontSize="Micro" />
+                    </StackLayout>
+                </Grid>
+            </Grid>
+
+            <Entry  Grid.Row="3" Grid.Column="0" Placeholder="Tap here to enter notes..." Text="{Binding Notes}" HorizontalOptions="Fill" Unfocused="Entry_Unfocused" IsVisible="{Binding IsEditMode, Converter={StaticResource Key=NotConverter}}" />
+
+            <ScrollView x:Name="moduleScrollView"  Grid.Row="4" Grid.Column="0" VerticalOptions="Fill" HorizontalOptions="Fill" IsVisible="{Binding IsEditMode, Converter={StaticResource NotConverter}}" >
+                <StackLayout>
+                    <usercontrols:LoadsLayout x:Name="loadList" />                    
+                </StackLayout>
+            </ScrollView>
+        </Grid>
+
+        <usercontrols:MessagePromptView x:Name="msgPromptView" BindingContext="{Binding .}"  OkCommand="{Binding DeleteCommand}"  AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="False"  />
+        <usercontrols:MessagePromptView x:Name="deleteAllPrompt" BindingContext="{Binding .}"  OkCommand="{Binding DeleteAllCommand}"  AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="False"  />
+        <usercontrols:MoveModulesView x:Name="moveModulesView" BindingContext="{Binding .}"  OkCommand="{Binding MoveCommand}"  AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="False" />
+        <usercontrols:BusyIndicatorView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BusyMessage="{Binding BusyMessage}" IsVisible="{Binding IsBusy}" />
+    </AbsoluteLayout>
+</ContentPage>

@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RFIDModuleScan.Views.OpticalScanPage" Style="{StaticResource mainPage}" Title="Acquire Bar Code">	
+    <Grid HorizontalOptions="FillAndExpand">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />            
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="FillAndExpand" Padding="10">
+            <Grid.ColumnDefinitions>                
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />                
+            </Grid.RowDefinitions>
+
+            <StackLayout Grid.Row="0" Grid.Column="0"  Orientation="Horizontal">
+                <Label Text="Last module: " Grid.Row="0" Grid.Column="0" FontSize="Medium"  FontAttributes="Bold"  />
+                <Label x:Name="lblLastModuleScanned" HorizontalOptions="FillAndExpand" Grid.Row="0" Grid.Column="1" FontSize="Medium" />
+            </StackLayout>
+
+            <StackLayout Grid.Row="1" Grid.Column="0"  Orientation="Horizontal">
+                <Label Text="GPS: " Grid.Row="1" Grid.Column="0" FontSize="Medium"  FontAttributes="Bold" />
+                <Label x:Name="lblCurrentGPS"  HorizontalOptions="FillAndExpand" Grid.Row="1" Grid.Column="1" FontSize="Medium" />
+            </StackLayout>
+
+            <StackLayout Grid.Row="2" Grid.Column="0"  Orientation="Horizontal">
+                <Label Text="Loads: " FontSize="Medium"  FontAttributes="Bold"  />
+                <Label x:Name="lblLoadCount" FontSize="Medium"  />
+            </StackLayout>
+
+            <StackLayout Grid.Row="3" Grid.Column="0"  Orientation="Horizontal">
+                <Label Text="Modules: " FontSize="Medium"  FontAttributes="Bold"  />
+                <Label x:Name="lblModuleCount" FontSize="Medium" />
+            </StackLayout>
+        </Grid>        
+        <AbsoluteLayout x:Name="absLayout" Grid.Column="0" Grid.Row="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">               
+            
+            
+        </AbsoluteLayout>
+    </Grid>
+</ContentPage>

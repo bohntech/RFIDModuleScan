@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converter="clr-namespace:RFIDModuleScan.Converters"
+             x:Class="RFIDModuleScan.Views.SettingsPage" BackgroundColor="#FFFFFF" Title="Settings">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converter:InvalidIntStringColorConverter x:Key="InvalidIntStringColorConverter"/>
+            <converter:InvalidIntStringTextColorConverter x:Key="InvalidIntStringTextColorConverter"/>
+            <converter:EmptyStringToColorConverter x:Key="EmptyStringToColorConverter"/>
+            <converter:EmptyStringVisibleConverter x:Key="EmptyStringVisibleConverter"/>
+            <converter:InvalidRequiredIntMessageConverter x:Key="InvalidRequiredIntMessageConverter"/>
+            <converter:InvalidRequiredIntMessageVisibleConverter x:Key="InvalidRequiredIntMessageVisibleConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ScrollView >
+        <StackLayout>                     
+                <StackLayout BackgroundColor="#ffffff">
+                    <StackLayout Padding="5" BackgroundColor="#c2c2c2">
+                        <Label Text="Scan Settings"  HorizontalOptions="FillAndExpand" BackgroundColor="#c2c2c2" TextColor="#333333" FontSize="Medium" HorizontalTextAlignment="Center" VerticalOptions="FillAndExpand" VerticalTextAlignment="Center" ></Label>
+                    </StackLayout>
+                    <Grid Padding="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />                            
+                            
+                            <RowDefinition Height="Auto" />                            
+                            <RowDefinition Height="Auto" />
+                            
+                            <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Text="Tablet ID" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="End" TextColor="#333333"></Label>
+                        
+                        <Entry Placeholder="Enter tablet id"  Grid.Row="0" Grid.Column="1"  VerticalOptions="Center" HorizontalOptions="FillAndExpand" 
+                                   Text="{Binding Path=ScanSettings.TabletID, Mode=TwoWay}"                                    
+                                   BackgroundColor="{Binding Path=ScanSettings.TabletID, Converter={StaticResource Key=EmptyStringToColorConverter}}" />
+                        
+                        <Label  Grid.Row="1" Grid.Column="1" Text="required"  Style="{StaticResource errorLabel}"  IsVisible="{Binding Path=ScanSettings.TabletID, Converter={StaticResource Key=EmptyStringVisibleConverter}}" />
+
+                        <Label Text="Serial numbers per load" Grid.Row="2" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Fill" HorizontalTextAlignment="End" TextColor="#333333" ></Label>
+                        <Entry Placeholder="Enter a number"   Grid.Row="2" Grid.Column="1" Keyboard="Numeric"                                 
+                               Text="{Binding Path=ScanSettings.MaxModulesPerLoad, Mode=TwoWay}"                                
+                               BackgroundColor="{Binding Path=ScanSettings.MaxModulesPerLoad, Converter={StaticResource Key=InvalidIntStringColorConverter}}"/>
+
+
+                        <Label  Grid.Row="3" Grid.Column="1" Style="{StaticResource errorLabel}" 
+                            IsVisible="{Binding Path=ScanSettings.MaxModulesPerLoad, Converter={StaticResource InvalidRequiredIntMessageVisibleConverter}}"
+                            Text="{Binding Path=ScanSettings.MaxModulesPerLoad, Converter={StaticResource Key=InvalidRequiredIntMessageConverter}}" />
+                        <Button x:Name="btnSaveSettings" Grid.Row="4" Grid.Column="1" Text="Save" Style="{StaticResource primaryButton}"  Command="{Binding SaveSettings}" />
+                </Grid>
+                    
+                   
+                    
+                </StackLayout>
+           
+                <StackLayout BackgroundColor="#ffffff">
+                    <StackLayout Padding="5" BackgroundColor="#c2c2c2">
+                        <Label Text="Connection Settings"  HorizontalOptions="FillAndExpand" BackgroundColor="#c2c2c2" TextColor="#333333" FontSize="Medium" HorizontalTextAlignment="Center" VerticalOptions="FillAndExpand" VerticalTextAlignment="Center" ></Label>
+                    </StackLayout>
+                    <StackLayout Padding="10,15,10,10">
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" Padding="0,0,0,5">
+                            <Label Text="Connected to: " TextColor="#333333"></Label>
+                            <Label x:Name="lblConnectedTo" Text="{Binding ScannerDisplayName}" TextColor="#333333"></Label>
+                        </StackLayout>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <Button x:Name="btnOpenConnections" Grid.Row="0" Grid.Column="1" Text="Pair" Style="{StaticResource primaryButton}"  Command="{Binding OpenConnections}" />
+                            <Button x:Name="btnScanForDevices" Grid.Row="0" Grid.Column="2" Text=" Refresh "  Command="{Binding RefreshList}" Style="{StaticResource primaryButton}"/>
+                        </Grid>
+
+                        <StackLayout Padding="2" BackgroundColor="#FFFFFF">
+                             <Label Text="Available devices" BackgroundColor="#FFFFFF" TextColor="#333333"  Margin="0" FontAttributes="Bold" FontSize="Medium" />
+                        </StackLayout>
+                        <Frame BackgroundColor="#dddddd" Padding="2" HeightRequest="100">
+                            <ListView x:Name="lvAvailableDevices" HorizontalOptions="FillAndExpand" VerticalOptions="Fill" BackgroundColor="White" SeparatorColor="#dddddd" ItemsSource="{Binding AvailableScanners}" SelectedItem="{Binding SelectedScanner, Mode=TwoWay}" >
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextCell Text="{Binding DisplayName}" TextColor="#333333" />
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Frame>                      
+
+                        <Label Margin="5" x:Name="lblError" IsVisible="{Binding ErrorMessageVisible}" Text="{Binding ErrorMessage}" TextColor="#FF0000" />
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="btnConnect"    Grid.Column="0" Grid.Row="0" Text=" Connect "     Style="{StaticResource primaryButton}" Command="{Binding ConnectToSelected}"/>
+                            <Button x:Name="btnDisconnect" Grid.Column="2" Grid.Row="0" Text=" Disconnect "  Style="{StaticResource primaryButton}" Command="{Binding Disconnect}"/>
+                        </Grid>
+                    </StackLayout>
+                </StackLayout>       
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
