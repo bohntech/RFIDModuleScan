@@ -79,6 +79,65 @@ namespace RFIDModuleScan.Core.Data
             return fileDictionary;
         }
 
+        public static string GetHIDFileString(List<FieldScan> scans, IModuleDataService dataService)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            //write header
+            sb.AppendLine("Module ID,Module SN,Lat,Lon,GMT Date,GMT Time,Tag Count,Client,Farm,Field,Variety,Machine PIN,Operator,Gin ID,Producer ID,Local Time,Field Area (Sq m),Season Total,Moisture (%),Diameter (cm),Weight (kg),Drop Lat,Drop Lon,Field Total,Incremental Area (Sq m),Local Date,Comment");
+
+            string templateLine = "{ModuleID},{SerialNumber},{Latitude},{Longitude},{GMTDate},{GMTTime},1,{Client},{Farm},{Field},,{TabletID},{Operator},{GinID},{ProducerID},{LocalTime},,,,,,{DropLat},{DropLon},{FieldTotal},,{LocalDate},{Comments}";
+
+            var allModuleScans = dataService.GetAll<ModuleScan>().ToList();
+            var allLoads = dataService.GetAll<Load>().ToList();
+                        
+            foreach (var scan in scans)
+            {
+                int scanCount = 1;
+
+                var loads = allLoads.Where(x => x.FieldScanID == scan.ID).OrderBy(x => x.Created);
+
+                foreach (var load in loads)
+                {
+                    var moduleScans = allModuleScans.Where(x => x.LoadID == load.ID && x.FieldScanID == scan.ID).OrderBy(x => x.TimeStamp);
+
+                    foreach (var module in moduleScans)
+                    {
+                        var dataString = templateLine;
+
+                        dataString = dataString.Replace("{ModuleID}", "No Module ID");
+                        dataString = dataString.Replace("{SerialNumber}", EscapeForCSV(module.SerialNumber));
+                        dataString = dataString.Replace("{Latitude}", module.Latitude.ToString());
+                        dataString = dataString.Replace("{Longitude}", module.Longitude.ToString());
+                        dataString = dataString.Replace("{GMTDate}", module.TimeStamp.ToUniversalTime().ToString("yyyy/MM/dd"));
+                        dataString = dataString.Replace("{GMTTime}", module.TimeStamp.ToUniversalTime().ToString("HH:mm:ss"));
+                        dataString = dataString.Replace("{Client}", EscapeForCSV(scan.Grower));
+                        dataString = dataString.Replace("{Farm}", EscapeForCSV(scan.Farm));
+                        dataString = dataString.Replace("{Field}", EscapeForCSV(scan.Field));
+                        dataString = dataString.Replace("{TabletID}", EscapeForCSV(Configuration.TabletID));
+                        dataString = dataString.Replace("{LocalTime}", module.TimeStamp.ToString("HH:mm:ss"));
+                        dataString = dataString.Replace("{DropLat}", module.Latitude.ToString());
+                        dataString = dataString.Replace("{DropLon}", module.Longitude.ToString());
+                        dataString = dataString.Replace("{Operator}", "");
+                        dataString = dataString.Replace("{GinID}", "");
+                        dataString = dataString.Replace("{ProducerID}", EscapeForCSV(scan.Grower));
+                        dataString = dataString.Replace("{FieldTotal}", scanCount.ToString());
+                        dataString = dataString.Replace("{Comments}", EscapeForCSV(load.Notes));
+                        dataString = dataString.Replace("{LocalDate}", module.TimeStamp.ToString("yyyy/MM/dd"));
+                        sb.AppendLine(dataString);
+                        scanCount++;
+                        module.Transmitted = true;
+                        dataService.Save<ModuleScan>(module);
+                    }
+                }
+
+                scan.Transmitted = DateTime.Now;
+                dataService.Save<FieldScan>(scan);
+            }
+
+            return sb.ToString();
+        }
+
         public static string GetCSVFileString(List<FieldScan> scans, IModuleDataService dataService)
         {
             StringBuilder sb = new StringBuilder();
@@ -88,6 +147,8 @@ namespace RFIDModuleScan.Core.Data
 
             var allModuleScans = dataService.GetAll<ModuleScan>().ToList();
             var allLoads = dataService.GetAll<Load>().ToList();
+
+            
 
             foreach (var scan in scans) {
 

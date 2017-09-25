@@ -5,9 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
+using System.ComponentModel;
+using System.Collections.Specialized;
+using System.Collections.ObjectModel;
+using RFIDModuleScan.Core.Enums;
 
 namespace RFIDModuleScan.Core.ViewModels
 {
+    public class ExportFormatModel : ObservableObject
+    {
+        public ExportFormatEnum ExportType { get; set; }
+        public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
     public class ScanSettingsViewModel : ObservableObject
     {
 
@@ -44,6 +59,25 @@ namespace RFIDModuleScan.Core.ViewModels
                 }
             }
         }
+
+       
+
+
+        private int _selectedExportIndex = 0;
+        public int SelectedExportIndex
+        {
+            get
+            {
+                return _selectedExportIndex;
+            }
+            set
+            {
+                if (Set<int>(() => SelectedExportIndex, ref _selectedExportIndex, value))
+                {
+                    IsDirty = true;
+                }
+            }
+        }        
 
         private string _lastConnectedScannerName = "";
         public string LastConnectedScannerName

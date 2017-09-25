@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RFIDModuleScan.Core.Data;
+using RFIDModuleScan.Core.Enums;
 
 namespace RFIDModuleScan.Core
 {
@@ -24,6 +25,25 @@ namespace RFIDModuleScan.Core
                 else
                 {
                     result = int.Parse(setting.Value);
+                }
+                return result;
+            }
+        }
+
+        public static ExportFormatEnum SelectedExportFormat
+        {
+            get
+            {
+                ModuleDataService db = new ModuleDataService();
+                var setting = db.GetSetting(AppSettingID.ExportFormatID);
+                var result = ExportFormatEnum.PlainCSV;
+                if (setting == null)
+                {
+                    db.SaveSetting(AppSettingID.ExportFormatID, ((int)result).ToString());
+                }
+                else
+                {
+                    result = (ExportFormatEnum)int.Parse(setting.Value);
                 }
                 return result;
             }

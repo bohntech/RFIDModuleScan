@@ -14,7 +14,8 @@ using RFIDModuleScan.Core.Data;
 using RFIDModuleScan.Core.Enums;
 
 namespace RFIDModuleScan.Core.ViewModels
-{
+{    
+
     public class SettingsViewModel : ViewModelBase, IDisposable
     {
         private INavigationService _navigationService;
@@ -122,7 +123,10 @@ namespace RFIDModuleScan.Core.ViewModels
             ScanSettings.LastConnectedScannerName = Configuration.LastScannerDisplayName;
             ScanSettings.MaxModulesPerLoad = Configuration.MaxModulesPerLoad.ToString();
             ScanSettings.TabletID = Configuration.TabletID;
+
             
+            ScanSettings.SelectedExportIndex = (int)Configuration.SelectedExportFormat;
+
             if (ScannerConnectionManager.ScannerContext != null)
             {
                 ScannerConnectionManager.ScannerContext.ConnectionStateChanged += ActiveScanner_ConnectionStateChanged;
@@ -197,6 +201,8 @@ namespace RFIDModuleScan.Core.ViewModels
                 _db.SaveSetting(AppSettingID.MaxModulesPerLoad, temp.ToString());
                 _db.SaveSetting(AppSettingID.TabletID, ScanSettings.TabletID);
             }
+
+            _db.SaveSetting(AppSettingID.ExportFormatID, (ScanSettings.SelectedExportIndex).ToString());
         }
 
         private bool CanExecuteSaveSettings()

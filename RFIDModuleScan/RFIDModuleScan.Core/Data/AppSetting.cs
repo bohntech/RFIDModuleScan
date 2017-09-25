@@ -14,6 +14,7 @@ namespace RFIDModuleScan.Core.Data
         public static Guid TabletID = Guid.Parse("00000000-0000-0000-0000-000000000002");
         public static Guid LastScannerName = Guid.Parse("00000000-0000-0000-0000-000000000003");
         public static Guid LastScannerID = Guid.Parse("00000000-0000-0000-0000-000000000004");
+        public static Guid ExportFormatID = Guid.Parse("00000000-0000-0000-0000-000000000005");
     }
 
     public class AppSetting : IDBEntity

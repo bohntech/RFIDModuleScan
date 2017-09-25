@@ -48,6 +48,7 @@
     <Compile Include="Data\ModuleDataService.cs" />
     <Compile Include="Data\ModuleScan.cs" />
     <Compile Include="Data\ISqlite.cs" />
+    <Compile Include="Enums\ExportFormatEnum.cs" />
     <Compile Include="Messages\AllScansLoadComplete.cs" />
     <Compile Include="Messages\LoadsChangedMessage.cs" />
     <Compile Include="Messages\NavigationMessage.cs" />

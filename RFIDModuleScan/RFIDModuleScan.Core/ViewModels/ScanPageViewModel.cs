@@ -988,13 +988,22 @@ namespace RFIDModuleScan.Core.ViewModels
             {
                 List<FieldScan> scans = _dataService.Find<FieldScan, DateTime>(s => s.ID == _fieldScanID, o => o.Created).ToList();
 
-                string file = FileHelper.GetCSVFileString(scans, _dataService);
-                
+                string file = "";
+                string extension = ".csv";
+
+                if (Configuration.SelectedExportFormat == ExportFormatEnum.PlainCSV)
+                    file = FileHelper.GetCSVFileString(scans, _dataService);
+                else
+                {
+                    file = FileHelper.GetHIDFileString(scans, _dataService);
+                    extension = ".TXT";
+                }
+
                 string body = string.Format("GROWER: {0}\r\nFARM: {1}\r\nFIELD: {2}\r\nNOTES: \r\n{3}\r\n\r\nPlease see attached load list.\r\n", Grower, Farm, Field, Notes);
 
                 IFileService svc = Xamarin.Forms.DependencyService.Get<IFileService>();
                 IEmailService _emailService = Xamarin.Forms.DependencyService.Get<IEmailService>();
-                string filename = "Transmission-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + ".csv";
+                string filename = "Transmission-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + extension;
                 string fullPath = svc.SaveText(filename, file);
 
                 List<string> files = new List<string>();

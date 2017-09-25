@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converter="clr-namespace:RFIDModuleScan.Converters"
+             xmlns:xlabs="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
              x:Class="RFIDModuleScan.Views.SettingsPage" BackgroundColor="#FFFFFF" Title="Settings">
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -26,7 +27,10 @@
                             
                             <RowDefinition Height="Auto" />                            
                             <RowDefinition Height="Auto" />
-                            
+
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+
                             <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
@@ -50,7 +54,14 @@
                         <Label  Grid.Row="3" Grid.Column="1" Style="{StaticResource errorLabel}" 
                             IsVisible="{Binding Path=ScanSettings.MaxModulesPerLoad, Converter={StaticResource InvalidRequiredIntMessageVisibleConverter}}"
                             Text="{Binding Path=ScanSettings.MaxModulesPerLoad, Converter={StaticResource Key=InvalidRequiredIntMessageConverter}}" />
-                        <Button x:Name="btnSaveSettings" Grid.Row="4" Grid.Column="1" Text="Save" Style="{StaticResource primaryButton}"  Command="{Binding SaveSettings}" />
+
+
+                    <Label Text="Export format" Grid.Row="4" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Fill" HorizontalTextAlignment="End" TextColor="#333333" ></Label>
+                    <Picker  x:Name="exportFormatPicker" Grid.Row="4" Grid.Column="1" Title="Export format" SelectedIndexChanged="exportFormatPicker_SelectedIndexChanged"  >                                                
+                    </Picker>   
+
+
+                    <Button x:Name="btnSaveSettings" Grid.Row="6" Grid.Column="1" Text="Save" Style="{StaticResource primaryButton}"  Command="{Binding SaveSettings}" />
                 </Grid>
                     
                    

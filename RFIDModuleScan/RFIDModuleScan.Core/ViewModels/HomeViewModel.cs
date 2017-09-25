@@ -10,6 +10,7 @@ using GalaSoft.MvvmLight.Command;
 using RFIDModuleScan.Core.Scanners;
 using RFIDModuleScan.Core.Data;
 using RFIDModuleScan.Core.Services;
+using RFIDModuleScan.Core.Enums;
 
 namespace RFIDModuleScan.Core.ViewModels
 {
@@ -142,12 +143,21 @@ namespace RFIDModuleScan.Core.ViewModels
             {
                 List<FieldScan> scans = _dataService.GetAll<FieldScan>().OrderBy(o => o.Created).ToList();
 
-                string file = FileHelper.GetCSVFileString(scans, _dataService);
+                string file = "";
+                string extension = ".csv";
+
+                if (Configuration.SelectedExportFormat == ExportFormatEnum.PlainCSV)
+                    file = FileHelper.GetCSVFileString(scans, _dataService);
+                else
+                {
+                    file = FileHelper.GetHIDFileString(scans, _dataService);
+                    extension = ".TXT";
+                }
 
                 string body = "Please see attached list.";
 
                 IFileService svc = Xamarin.Forms.DependencyService.Get<IFileService>();
-                string filename = "AllScans-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + ".csv";
+                string filename = "AllScans-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + extension;
                 string fullPath = svc.SaveText(filename, file);
 
                 List<string> files = new List<string>();

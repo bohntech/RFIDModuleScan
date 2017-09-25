@@ -7,8 +7,12 @@ using Plugin.CurrentActivity;
 
 namespace RFIDModuleScan.Droid
 {
-	//You can specify additional application information in this attribute
-    [Application]
+	//You can specify additional application information in this attribute    
+#if DEBUG
+[Application(Debuggable=true)]
+#else
+    [Application(Debuggable = false)]
+#endif
     public class MainApplication : Application, Application.IActivityLifecycleCallbacks
     {
         public MainApplication(IntPtr handle, JniHandleOwnership transer)

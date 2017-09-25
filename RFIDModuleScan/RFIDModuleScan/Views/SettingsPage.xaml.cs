@@ -9,6 +9,8 @@ using Xamarin.Forms;
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Views;
 using Xamarin.Forms.Xaml;
+using RFIDModuleScan.Core.Data;
+
 
 namespace RFIDModuleScan.Views
 {    
@@ -18,15 +20,24 @@ namespace RFIDModuleScan.Views
 
         public SettingsPage()
         {
+
             InitializeComponent();
 
             vm = new SettingsViewModel(SimpleIoc.Default.GetInstance<INavigationService>());
             this.BindingContext = vm;
+            exportFormatPicker.Items.Add("Plain CSV");
+            exportFormatPicker.Items.Add("Harvest ID CSV");
+            exportFormatPicker.SelectedIndex = (int)RFIDModuleScan.Core.Configuration.SelectedExportFormat;
         }
 
         public void Dispose()
         {
             vm.Cleanup();
+        }
+
+        private void exportFormatPicker_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            vm.ScanSettings.SelectedExportIndex = exportFormatPicker.SelectedIndex;
         }
     }
 }
