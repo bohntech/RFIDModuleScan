@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" package="com.rfidmodulescan.rfidmodulescan" android:versionCode="3" android:versionName="3">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" package="RF_Module_Scan.RF_Module_Scan" android:versionCode="3" android:versionName="3">
 	<uses-sdk android:minSdkVersion="15" />
 	<application android:label="RFID Module Scan" android:icon="@drawable/icon"></application>
 	<uses-permission android:name="android.permission.BLUETOOTH" />
