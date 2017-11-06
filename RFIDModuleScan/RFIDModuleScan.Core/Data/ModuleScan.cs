@@ -15,6 +15,7 @@ namespace RFIDModuleScan.Core.Data
         public Guid ID { get; set; }                
         public Guid FieldScanID { get; set; }
         public Guid LoadID { get; set; }
+        public string ModuleID { get; set; }
         public string SerialNumber { get; set; }
         public int BarcodeType { get; set; }
         public decimal Latitude { get; set; }
@@ -30,9 +31,29 @@ namespace RFIDModuleScan.Core.Data
             Transmitted = false;
         }
 
+        public string AdjustedModuleID
+        {
+            get
+            {
+                if (ModuleID.StartsWith("3500B9880611"))
+                {
+                    char[] chars = ModuleID.ToCharArray();
+                    if (chars.Length >= 15)
+                    {
+                        chars[14] = '0';
+                    }
+                    return new string(chars);
+                }
+                else
+                {
+                    return ModuleID;
+                }
+            }           
+        }
+
         public string GetTableHeader()
         {
-            return "ID,FieldScanID,LoadID,SerialNumber,BarcodeType,Latitude,Longitude,Timestamp,TransmitTime,Transmitted,Note";
+            return "ID,FieldScanID,LoadID,SerialNumber,ModuleID,BarcodeType,Latitude,Longitude,Timestamp,TransmitTime,Transmitted,Note";
         }
 
         public string GetCSVLine()
@@ -42,6 +63,7 @@ namespace RFIDModuleScan.Core.Data
             result += FileHelper.EscapeForCSV(FieldScanID.ToString()) + ",";
             result += FileHelper.EscapeForCSV(LoadID.ToString()) + ",";
             result += FileHelper.EscapeForCSV(SerialNumber) + ",";
+            result += FileHelper.EscapeForCSV(AdjustedModuleID) + ",";
             result += FileHelper.EscapeForCSV(BarcodeType.ToString()) + ",";
 
             if (Latitude.ToString() == "0")

@@ -232,6 +232,7 @@ namespace RFIDModuleScan.Core.ViewModels
                             moduleVM.Longitude = module.Longitude;
                             moduleVM.ModuleType = (Enums.BarCodeTypeEnum)module.BarcodeType;
                             moduleVM.SerialNumber = module.SerialNumber;
+                            moduleVM.ModuleID = module.ModuleID;
                             moduleVM.TimeStamp = module.TimeStamp;
                             loadVM.Modules.AddWithoutNotify(moduleVM);
                         }

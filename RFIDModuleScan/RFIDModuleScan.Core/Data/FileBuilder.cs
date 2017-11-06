@@ -105,7 +105,7 @@ namespace RFIDModuleScan.Core.Data
                     {
                         var dataString = templateLine;
 
-                        dataString = dataString.Replace("{ModuleID}", "No Module ID");
+                        dataString = dataString.Replace("{ModuleID}", module.AdjustedModuleID);
                         dataString = dataString.Replace("{SerialNumber}", EscapeForCSV(module.SerialNumber));
                         dataString = dataString.Replace("{Latitude}", module.Latitude.ToString());
                         dataString = dataString.Replace("{Longitude}", module.Longitude.ToString());
@@ -143,7 +143,7 @@ namespace RFIDModuleScan.Core.Data
             StringBuilder sb = new StringBuilder();
 
             //write header
-            sb.AppendLine("Grower,Farm,Field,SerialNumber,Load,ScanLocation,ScanType,Timestamp,Latitude,Longitude,TabletID,Notes");
+            sb.AppendLine("Grower,Farm,Field,SerialNumber,ModuleID,Load,ScanLocation,ScanType,Timestamp,Latitude,Longitude,TabletID,Notes");
 
             var allModuleScans = dataService.GetAll<ModuleScan>().ToList();
             var allLoads = dataService.GetAll<Load>().ToList();
@@ -170,6 +170,9 @@ namespace RFIDModuleScan.Core.Data
                         sb.Append(",");
 
                         sb.Append(EscapeForCSV(module.SerialNumber));
+                        sb.Append(",");
+
+                        sb.Append(EscapeForCSV(module.AdjustedModuleID));
                         sb.Append(",");
 
                         sb.Append(EscapeForCSV(load.LoadNumber.ToString()));

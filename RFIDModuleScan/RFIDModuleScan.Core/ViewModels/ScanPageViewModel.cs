@@ -396,10 +396,12 @@ namespace RFIDModuleScan.Core.ViewModels
                                 module.Latitude = scan.Latitude;
                                 module.Longitude = scan.Longitude;
                                 module.SerialNumberWithMessage = scan.SerialNumber;
+                                module.ModuleID = scan.ModuleID;
 
                                 ModuleScan dbScan = _dataService.GetByID<ModuleScan>(module.ID);
                                 dbScan.Latitude = scan.Latitude.Value;
                                 dbScan.Longitude = scan.Longitude.Value;
+                                dbScan.ModuleID = scan.ModuleID;
                                 _dataService.Save(dbScan);
                             }
                         }
@@ -441,6 +443,7 @@ namespace RFIDModuleScan.Core.ViewModels
                         moduleScan.Latitude = scan.Latitude.HasValue ? scan.Latitude.Value : 0.000M;
                         moduleScan.Longitude = scan.Longitude.HasValue ? scan.Longitude.Value : 0.000M;
                         moduleScan.SerialNumber = scan.SerialNumber;
+                        moduleScan.ModuleID = scan.ModuleID;
                         moduleScan.TimeStamp = scan.TimeStamp;
                         moduleScan.Note = Notes;
                         scansToInsert.Add(moduleScan);
@@ -649,6 +652,7 @@ namespace RFIDModuleScan.Core.ViewModels
                             moduleVM.Longitude = module.Longitude;
                             moduleVM.ModuleType = (Enums.BarCodeTypeEnum)module.BarcodeType;
                             moduleVM.SerialNumber = module.SerialNumber;
+                            moduleVM.ModuleID = module.ModuleID;
                             moduleVM.TimeStamp = module.TimeStamp;
                             loadVM.Modules.AddWithoutNotify(moduleVM);
                         }
@@ -858,6 +862,7 @@ namespace RFIDModuleScan.Core.ViewModels
                     moduleScan.Latitude = m.Latitude.HasValue ? m.Latitude.Value : 0.000M;
                     moduleScan.Longitude = m.Longitude.HasValue ? m.Longitude.Value : 0.000M;
                     moduleScan.SerialNumber = m.SerialNumber;
+                    moduleScan.ModuleID = m.ModuleID;
                     moduleScan.TimeStamp = m.TimeStamp;
                     m.ID = _dataService.Save<ModuleScan>(moduleScan);
                 }
@@ -1108,7 +1113,7 @@ namespace RFIDModuleScan.Core.ViewModels
             argsFlush.EventData = new ScanEventData { IsBarcode = false, RawData = "", MoreLines = false, IsFlush = true };
             ScannerContext_ItemScanned(this, argsFlush);
 
-            serialNumber = args.EventData.SerialNumber;
+            serialNumber = args.EventData.SerialNumber;            
             gpsMessage = GPSMessage;
         }
         
@@ -1165,6 +1170,7 @@ namespace RFIDModuleScan.Core.ViewModels
                                 scan.Latitude = null;
                             }
                             scan.SerialNumber = eventData.SerialNumber;
+                            scan.ModuleID = eventData.RawData;
                             scan.ID = Guid.NewGuid();
                             scansToAdd.Add(scan);
                         }

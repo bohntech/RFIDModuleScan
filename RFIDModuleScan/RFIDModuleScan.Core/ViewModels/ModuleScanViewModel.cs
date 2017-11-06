@@ -68,6 +68,20 @@ namespace RFIDModuleScan.Core.ViewModels
             }
         }
 
+        private string _moduleID = "";
+        public string ModuleID
+        {
+            get
+            {
+                return _moduleID;
+            }
+            set
+            {
+                Set<string>(() => ModuleID, ref _moduleID, value);                
+            }
+        }
+
+
         private string _serialNumberWithMessage = "";
         public string SerialNumberWithMessage
         {
