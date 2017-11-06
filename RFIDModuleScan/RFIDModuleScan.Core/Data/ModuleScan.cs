@@ -35,6 +35,11 @@ namespace RFIDModuleScan.Core.Data
         {
             get
             {
+                if (ModuleID == null)
+                {
+                    return "";
+                }
+
                 if (ModuleID.StartsWith("3500B9880611"))
                 {
                     char[] chars = ModuleID.ToCharArray();

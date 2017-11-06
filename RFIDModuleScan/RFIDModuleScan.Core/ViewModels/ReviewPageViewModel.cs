@@ -338,32 +338,39 @@ namespace RFIDModuleScan.Core.ViewModels
             BusyMessage = "Building file...";
             Task.Run(() =>
             {
-                List<FieldScan> scans = _dataService.Find<FieldScan, DateTime>(s => s.ID == _fieldScanID, o => o.Created).ToList();
-
-                string file = "";
-                string extension = ".csv";
-
-                if (Configuration.SelectedExportFormat == ExportFormatEnum.PlainCSV)
-                    file = FileHelper.GetCSVFileString(scans, _dataService);
-                else
+                try
                 {
-                    file = FileHelper.GetHIDFileString(scans, _dataService);
-                    extension = ".TXT";
+                    List<FieldScan> scans = _dataService.Find<FieldScan, DateTime>(s => s.ID == _fieldScanID, o => o.Created).ToList();
+
+                    string file = "";
+                    string extension = ".csv";
+
+                    if (Configuration.SelectedExportFormat == ExportFormatEnum.PlainCSV)
+                        file = FileHelper.GetCSVFileString(scans, _dataService);
+                    else
+                    {
+                        file = FileHelper.GetHIDFileString(scans, _dataService);
+                        extension = ".TXT";
+                    }
+
+                    string body = string.Format("GROWER: {0}\r\nFARM: {1}\r\nFIELD: {2}\r\n\r\nPlease see attached load list.\r\n", Grower, Farm, Field);
+
+                    IFileService svc = Xamarin.Forms.DependencyService.Get<IFileService>();
+                    string filename = "Transmission-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + extension;
+                    string fullPath = svc.SaveText(filename, file);
+
+                    List<string> files = new List<string>();
+                    files.Add(fullPath);
+
+                    _emailService.ShowDraft("Load List", body, false, "", files);
+
+                    IsBusy = false;
+                    BusyMessage = "Loading...";
                 }
-
-                string body = string.Format("GROWER: {0}\r\nFARM: {1}\r\nFIELD: {2}\r\n\r\nPlease see attached load list.\r\n", Grower, Farm, Field);
-
-                IFileService svc = Xamarin.Forms.DependencyService.Get<IFileService>();
-                string filename = "Transmission-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + extension;
-                string fullPath = svc.SaveText(filename, file);
-
-                List<string> files = new List<string>();
-                files.Add(fullPath);
-
-                _emailService.ShowDraft("Load List", body, false, "", files);
-
-                IsBusy = false;
-                BusyMessage = "Loading...";
+                catch (Exception exc)
+                {
+                    BusyMessage = exc.Message;
+                }
             });
         }
 
