@@ -68,6 +68,94 @@ namespace RFIDModuleScan.Core
             }
         }
 
+        public static string GinName
+        {
+            get
+            {
+                ModuleDataService db = new ModuleDataService();
+                var setting = db.GetSetting(AppSettingID.GinName);
+                var result = string.Empty;
+
+                if (setting == null)
+                {
+                    db.SaveSetting(AppSettingID.GinName, result);
+                }
+                else
+                {
+                    result = setting.Value;
+                }
+                return result;
+            }
+        }
+
+        public static bool ConnectedToGin
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(GinDBKey) && !string.IsNullOrWhiteSpace(GinDBUrl);
+            }
+        }
+
+        public static string GinDBUrl
+        {
+            get
+            {
+                ModuleDataService db = new ModuleDataService();
+                var setting = db.GetSetting(AppSettingID.GinDBUrl);
+                var result = string.Empty;
+
+                if (setting == null)
+                {
+                    db.SaveSetting(AppSettingID.GinDBUrl, result);
+                }
+                else
+                {
+                    result = setting.Value;
+                }
+                return result;
+            }
+        }
+
+        public static string GinDBKey
+        {
+            get
+            {
+                ModuleDataService db = new ModuleDataService();
+                var setting = db.GetSetting(AppSettingID.GinDBKey);
+                var result = string.Empty;
+
+                if (setting == null)
+                {
+                    db.SaveSetting(AppSettingID.GinDBKey, result);
+                }
+                else
+                {
+                    result = setting.Value;
+                }
+                return result;
+            }
+        }
+
+        public static string GinEmail
+        {
+            get
+            {
+                ModuleDataService db = new ModuleDataService();
+                var setting = db.GetSetting(AppSettingID.GinEmail);
+                var result = string.Empty;
+
+                if (setting == null)
+                {
+                    db.SaveSetting(AppSettingID.GinEmail, result);
+                }
+                else
+                {
+                    result = setting.Value;
+                }
+                return result;
+            }
+        }
+
         public static string LastScannerDisplayName
         {
             get

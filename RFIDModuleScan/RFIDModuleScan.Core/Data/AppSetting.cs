@@ -15,6 +15,14 @@ namespace RFIDModuleScan.Core.Data
         public static Guid LastScannerName = Guid.Parse("00000000-0000-0000-0000-000000000003");
         public static Guid LastScannerID = Guid.Parse("00000000-0000-0000-0000-000000000004");
         public static Guid ExportFormatID = Guid.Parse("00000000-0000-0000-0000-000000000005");
+
+        public static Guid GinName = Guid.Parse("00000000-0000-0000-0000-000000000010");
+        public static Guid GinDBUrl = Guid.Parse("00000000-0000-0000-0000-000000000011");
+        public static Guid GinDBKey = Guid.Parse("00000000-0000-0000-0000-000000000012");
+        public static Guid GinEmail = Guid.Parse("00000000-0000-0000-0000-000000000013");
+
+        public static Guid Version = Guid.Parse("00000000-0000-0000-0000-000000000020");
+
     }
 
     public class AppSetting : IDBEntity

@@ -19,6 +19,7 @@
             <converter:InvalidRequiredIntMessageVisibleConverter x:Key="InvalidRequiredIntMessageVisibleConverter"/>
             <converter:ModuleCountToTextConverter x:Key="ModuleCountToTextConverter"/>
             <converter:IntToBoolConverter x:Key="IntToBoolConverter"/>
+            <converter:PickerValueVisibilityConverter x:Key="PickerValueVisibilityConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
     <AbsoluteLayout>
@@ -52,36 +53,51 @@
             <StackLayout Padding="5,5,5,0" Grid.Row="1" Grid.Column="0" IsVisible="{Binding IsEditMode}" MinimumHeightRequest="0" >
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition><!--GROWER PICKER -->
+                        <RowDefinition Height="Auto"></RowDefinition><!--GROWER ENTRY  -->
+                        <RowDefinition Height="Auto"></RowDefinition><!--GROWER ERROR  -->
+                        
+                        <RowDefinition Height="Auto"></RowDefinition><!--FARM  PICKER -->
+                        <RowDefinition Height="Auto"></RowDefinition><!--FARM ENTRY   -->
+                        <RowDefinition Height="Auto"></RowDefinition><!--FARM ERROR   -->
+
+                        <RowDefinition Height="Auto"></RowDefinition><!-- FIELD PICKER  -->
+                        <RowDefinition Height="Auto"></RowDefinition><!-- FIELD ENTRY   -->
+                        <RowDefinition Height="Auto"></RowDefinition><!-- FIELD ERROR   -->
+
                         <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>                        
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    
-                    <Label Text="Grower: " Grid.Row="0" Grid.Column="0" VerticalOptions="Center" />
-                    <Entry Grid.Row="0" Grid.Column="1" Placeholder="Enter grower" Text="{Binding Grower, Mode=TwoWay}"   
+
+                    <Label Text="Client: " Grid.Row="0" Grid.Column="0" VerticalOptions="Center" />
+                    <Picker x:Name="clientPicker" Grid.Row="0" Grid.Column="1"  SelectedIndexChanged="clientPicker_SelectedIndexChanged"   />
+                    <Entry Grid.Row="1" Grid.Column="1" Placeholder="Enter grower" Text="{Binding Grower, Mode=TwoWay}" IsVisible="{Binding SelectedClient, Converter={StaticResource PickerValueVisibilityConverter}}"   
                                BackgroundColor="{Binding Grower, Converter={StaticResource EmptyStringToColorConverter}}" />
-                    <Label Grid.Row="1" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding Grower, Converter={StaticResource EmptyStringVisibleConverter}}" />
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding GrowerError}" Style="{StaticResource errorLabel}" IsVisible="{Binding HasGrowerError}" />
 
-                    <Label Text="Farm: " Grid.Row="2" Grid.Column="0" VerticalOptions="Center" />
-                    <Entry Grid.Row="2" Grid.Column="1" Placeholder="Enter farm" Text="{Binding Farm, Mode=TwoWay}"  HorizontalOptions="Fill" BackgroundColor="{Binding Farm, Converter={StaticResource EmptyStringToColorConverter}}" />
-                    <Label Grid.Row="3" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding Farm, Converter={StaticResource EmptyStringVisibleConverter}}" />
+                    <Label Text="Farm: " Grid.Row="3" Grid.Column="0" VerticalOptions="Center" />
+                    <Picker x:Name="farmPicker" Grid.Row="3" Grid.Column="1" SelectedIndexChanged="farmPicker_SelectedIndexChanged"  />
+                    <Entry Grid.Row="4" Grid.Column="1" Placeholder="Enter farm" Text="{Binding Farm, Mode=TwoWay}"  HorizontalOptions="Fill"
+                           IsVisible="{Binding SelectedFarm, Converter={StaticResource PickerValueVisibilityConverter}}"
+                           BackgroundColor="{Binding Farm, Converter={StaticResource EmptyStringToColorConverter}}" />
+                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding FarmError}" Style="{StaticResource errorLabel}" IsVisible="{Binding HasFarmError}" />
 
-                    <Label Text="Field: " Grid.Row="4" Grid.Column="0" VerticalOptions="Center" />
-                    <Entry Grid.Row="4" Grid.Column="1" Placeholder="Enter field" Text="{Binding Field, Mode=TwoWay}"  HorizontalOptions="Fill" BackgroundColor="{Binding Field, Converter={StaticResource EmptyStringToColorConverter}}"/>
-                    <Label Grid.Row="5" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding Field, Converter={StaticResource EmptyStringVisibleConverter}}" />
 
-                    <Label Text="Location: " Grid.Row="6" Grid.Column="0" VerticalOptions="Center" />
-                    <Entry Grid.Row="6" Grid.Column="1" Placeholder="Enter scan location" Text="{Binding ScanLocation, Mode=TwoWay}"  HorizontalOptions="Fill" BackgroundColor="{Binding ScanLocation, Converter={StaticResource EmptyStringToColorConverter}}"/>
-                    <Label Grid.Row="7" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding ScanLocation, Converter={StaticResource EmptyStringVisibleConverter}}" />
+                    <Label Text="Field: " Grid.Row="6" Grid.Column="0" VerticalOptions="Center" />
+                    <Picker x:Name="fieldPicker" Grid.Row="6" Grid.Column="1"  SelectedIndexChanged="fieldPicker_SelectedIndexChanged" />
+                    <Entry Grid.Row="7" Grid.Column="1" Placeholder="Enter field" Text="{Binding Field, Mode=TwoWay}"  
+                           IsVisible="{Binding SelectedField, Converter={StaticResource PickerValueVisibilityConverter}}"
+                           HorizontalOptions="Fill" BackgroundColor="{Binding Field, Converter={StaticResource EmptyStringToColorConverter}}"/>
+                    <Label Grid.Row="8" Grid.Column="1" Text="{Binding FieldError}" Style="{StaticResource errorLabel}" IsVisible="{Binding HasFieldError}" />
+                    
+
+                    <Label Text="Location: " Grid.Row="9" Grid.Column="0" VerticalOptions="Center" />
+                    <Entry Grid.Row="9" Grid.Column="1" Placeholder="Enter scan location" Text="{Binding ScanLocation, Mode=TwoWay}"  HorizontalOptions="Fill" BackgroundColor="{Binding ScanLocation, Converter={StaticResource EmptyStringToColorConverter}}"/>
+                    <Label Grid.Row="10" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding ScanLocation, Converter={StaticResource EmptyStringVisibleConverter}}" />
 
                 </Grid>
 

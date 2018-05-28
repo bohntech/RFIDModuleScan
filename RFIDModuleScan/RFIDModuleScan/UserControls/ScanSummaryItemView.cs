@@ -93,7 +93,7 @@ namespace RFIDModuleScan.UserControls
         {
             this.BindingContext = vm;
 
-            growerLabel.Text = "Grower:";            
+            growerLabel.Text = "Client:";            
             farmLabel.Text = "Farm:";
             fieldLabel.Text = "Field:";
             modulesLabel.Text = "Modules:";

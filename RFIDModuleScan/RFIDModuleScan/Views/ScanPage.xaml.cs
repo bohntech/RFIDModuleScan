@@ -28,43 +28,108 @@ namespace RFIDModuleScan.Views
         #region Private methods
         private void init(Guid? id = null)
         {
-            InitializeComponent();
-            
-            INavigationService _navService = SimpleIoc.Default.GetInstance<INavigationService>();
-
-            if (id.HasValue)
+            try
             {
-                Title = "Continue Load Scan";
+                InitializeComponent();
+
+                INavigationService _navService = SimpleIoc.Default.GetInstance<INavigationService>();
+
+                if (id.HasValue)
+                {
+                    Title = "Continue Load Scan";
+                }
+                else
+                {
+                    Title = "New Load Scan";
+                }
+
+                ToolbarItems.Add(new ToolbarItem("Settings", "gear.png", () =>
+                {
+                    _navService.NavigateTo(ViewLocator.SettingsPage);
+                }));
+
+                vm = new ScanPageViewModel(_navService, SimpleIoc.Default.GetInstance<IModuleDataService>(), id);
+
+                //GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<LoadsChangedMessage>(this, HandleLoadsChangedMessage);
+                GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<OpenScanEditFormMessage>(this, HandleOpenScanEditMessage);
+
+                this.BindingContext = vm;
+                loadList.IsMultiLoadList = true;
+
+                Task.Run(() =>
+                {
+                    vm.Initialize();
+                    vm.IsBusy = true;
+
+                    var initialFarm = vm.Farm;
+                    var initialField = vm.Field;
+
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        //picker doesn't support binding so have to create the lists manually
+                        foreach (var c in vm.Clients) clientPicker.Items.Add(c.Name);
+                        foreach (var f in vm.Farms) farmPicker.Items.Add(f.Name);
+                        foreach (var f in vm.Fields) fieldPicker.Items.Add(f.Name);
+
+                        clientPicker.SelectedIndex = vm.SelectedClientIndex;
+
+                        if (!string.IsNullOrWhiteSpace(initialFarm))
+                        {
+                            farmPicker.SelectedIndex = farmPicker.Items.IndexOf(initialFarm);
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(initialField))
+                        {
+                            fieldPicker.SelectedIndex = fieldPicker.Items.IndexOf(initialField);
+                        }
+                    });
+                    
+                    loadList.InitialBind(vm.Loads);
+                    vm.IsBusy = false;
+                });
             }
-            else
+            catch(Exception exc)
             {
-                Title = "New Load Scan";
+                string message = exc.Message;
             }
-
-            ToolbarItems.Add(new ToolbarItem("Settings", "gear.png", () =>
-            {
-                _navService.NavigateTo(ViewLocator.SettingsPage);
-            }));
-            
-            vm = new ScanPageViewModel(_navService, SimpleIoc.Default.GetInstance<IModuleDataService>(), id);
-           
-            //GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<LoadsChangedMessage>(this, HandleLoadsChangedMessage);
-
-            this.BindingContext = vm;
-            loadList.IsMultiLoadList = true;
-
-            Task.Run(() => {                
-                vm.Initialize();
-                vm.IsBusy = true;
-                
-                loadList.InitialBind(vm.Loads);
-                vm.IsBusy = false;
-            });
         }
 
         private void HandleLoadsChangedMessage(LoadsChangedMessage param)
         {
             Device.StartTimer(new TimeSpan(0, 0, 0, 0, 200), scrollCallback);
+        }
+
+        //since binding not supported on picker we use a message broadcase from the view model
+        //to let us know we need to re initialize the picker's when the edit form opens
+        private void HandleOpenScanEditMessage(OpenScanEditFormMessage msg)
+        {
+
+            var initialFarm = msg.Farm;
+            var initialField = msg.Field;
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                //picker doesn't support binding so have to create the lists manually
+                clientPicker.Items.Clear();
+                farmPicker.Items.Clear();
+                fieldPicker.Items.Clear();
+                foreach (var c in vm.Clients) clientPicker.Items.Add(c.Name);
+                foreach (var f in vm.Farms) farmPicker.Items.Add(f.Name);
+                foreach (var f in vm.Fields) fieldPicker.Items.Add(f.Name);
+
+                int selectedClientIndex = vm.SelectedClientIndex;
+                clientPicker.SelectedIndex = selectedClientIndex;
+
+                if (!string.IsNullOrWhiteSpace(initialFarm))
+                {
+                    farmPicker.SelectedIndex = farmPicker.Items.IndexOf(initialFarm);
+                }
+
+                if (!string.IsNullOrWhiteSpace(initialField))
+                {
+                    fieldPicker.SelectedIndex = fieldPicker.Items.IndexOf(initialField);
+                }
+            });
         }
 
         private bool scrollCallback()
@@ -81,10 +146,11 @@ namespace RFIDModuleScan.Views
 
 
         public void Dispose()
-        {         
-                GalaSoft.MvvmLight.Messaging.Messenger.Default.Unregister<LoadsChangedMessage>(this);
-                vm.Cleanup();
-                vm.Dispose();           
+        {
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Unregister<LoadsChangedMessage>(this);
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Unregister<OpenScanEditFormMessage>(this);
+            vm.Cleanup();
+            vm.Dispose();
         }
              
         public ScanPage(Guid id)
@@ -172,6 +238,35 @@ namespace RFIDModuleScan.Views
 
         }
 
-        
+        private void clientPicker_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (clientPicker.SelectedIndex > -1)
+            {
+                vm.SelectNewClient(clientPicker.Items[clientPicker.SelectedIndex]);
+
+                farmPicker.Items.Clear();
+                foreach (var f in vm.Farms) farmPicker.Items.Add(f.Name);
+                farmPicker.SelectedIndex = vm.SelectedFarmIndex;
+            }       
+        }
+
+        private void farmPicker_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (farmPicker.SelectedIndex > -1)
+            {
+                vm.SelectNewFarm(farmPicker.Items[farmPicker.SelectedIndex]);
+                fieldPicker.Items.Clear();
+                foreach (var f in vm.Fields) fieldPicker.Items.Add(f.Name);
+                fieldPicker.SelectedIndex = vm.SelectedFieldIndex;
+            }
+        }
+
+        private void fieldPicker_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (fieldPicker.SelectedIndex > -1)
+            {
+                vm.SelectNewField(fieldPicker.Items[fieldPicker.SelectedIndex]);
+            }
+        }
     }
 }

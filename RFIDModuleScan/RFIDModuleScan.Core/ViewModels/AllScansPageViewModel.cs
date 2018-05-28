@@ -67,6 +67,11 @@ namespace RFIDModuleScan.Core.ViewModels
         public void Initialize()
         {
 
+            if (Configuration.ConnectedToGin)
+            {
+                _dataService.SyncRemoteLists(); //sync client/farm/field lists
+            }
+
             var items = _dataService.Find<FieldScan, DateTime>(x => x.ListTypeID == (int)ListTypeEnum.Staging, s => s.Created);
 
             ScanItems.Clear();

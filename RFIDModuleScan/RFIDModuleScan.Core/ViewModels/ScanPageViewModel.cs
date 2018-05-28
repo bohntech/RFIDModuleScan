@@ -40,27 +40,18 @@ namespace RFIDModuleScan.Core.ViewModels
         private string _origStartLoadNumber = "1";
         private string _origMaxModulesPerLoad = "1";
 
+        private List<Client> dbClients = new List<Client>();
+        private List<Farm> dbFarms = new List<Data.Farm>();
+        private List<Field> dbFields = new List<Field>();
+
+
+
         private Queue<ScanEventData> itemQueue = null;
 
         #endregion
 
         #region Observable Properties
-               
-        
-        /*private void refreshErrors()
-        {
-            ErrorMessages = "";
-
-            if (!ValidationHelper.ValidInt(MaxModulesPerLoad))
-            {
-                ErrorMessages += "Max modules per load must be a number.\r\n";
-            }
-            if (!ValidationHelper.ValidInt(StartingLoadNumber))
-            {
-                ErrorMessages += "Starting load number must be a number.";
-            }
-        }*/
-
+       
         private string _gpsMessage;
         public string GPSMessage
         {
@@ -112,6 +103,32 @@ namespace RFIDModuleScan.Core.ViewModels
             }
         }
 
+        private string _growerError;
+        public string GrowerError
+        {
+            get
+            {
+                return _growerError;
+            }
+            set
+            {
+                Set<String>(() => GrowerError, ref _growerError, value);
+            }
+        }
+
+        private bool _hasGrowerError;
+        public bool HasGrowerError
+        {
+            get
+            {
+                return _hasGrowerError;
+            }
+            set
+            {
+                Set<bool>(() => HasGrowerError, ref _hasGrowerError, value);
+            }
+        }
+
         private string _farm;
         public string Farm
         {
@@ -122,6 +139,32 @@ namespace RFIDModuleScan.Core.ViewModels
             set
             {
                 Set<String>(() => Farm, ref _farm, value);
+            }
+        }
+
+        private string _FarmError;
+        public string FarmError
+        {
+            get
+            {
+                return _FarmError;
+            }
+            set
+            {
+                Set<String>(() => FarmError, ref _FarmError, value);
+            }
+        }
+
+        private bool _hasFarmError;
+        public bool HasFarmError
+        {
+            get
+            {
+                return _hasFarmError;
+            }
+            set
+            {
+                Set<bool>(() => HasFarmError, ref _hasFarmError, value);
             }
         }
 
@@ -137,6 +180,115 @@ namespace RFIDModuleScan.Core.ViewModels
                 Set<String>(() => Field, ref _field, value);
             }
         }
+
+        private string _FieldError;
+        public string FieldError
+        {
+            get
+            {
+                return _FieldError;
+            }
+            set
+            {
+                Set<String>(() => FieldError, ref _FieldError, value);
+            }
+        }
+
+        private bool _hasFieldError;
+        public bool HasFieldError
+        {
+            get
+            {
+                return _hasFieldError;
+            }
+            set
+            {
+                Set<bool>(() => HasFieldError, ref _hasFieldError, value);
+            }
+        }
+
+        public ObservableCollection<Client> Clients { get; set; }
+        public ObservableCollection<Farm> Farms { get; set; }
+        public ObservableCollection<Field> Fields { get; set; }
+
+        private string _selectedClient;
+        public string SelectedClient
+        {
+            get
+            {
+                return _selectedClient;
+            }
+            set
+            {
+                Set<String>(() => SelectedClient, ref _selectedClient, value);
+            }
+        }
+
+        public int SelectedClientIndex
+        {
+            get
+            {
+                for(int i=0; i < Clients.Count(); i++)
+                {
+                    if (Clients[i].Name.ToLower().Trim() == SelectedClient.ToLower().Trim()) return i;
+                }
+
+                return -1;
+            }
+        }
+
+        private string _selectedFarm;
+        public string SelectedFarm
+        {
+            get
+            {
+                return _selectedFarm;
+            }
+            set
+            {
+                Set<String>(() => SelectedFarm, ref _selectedFarm, value);
+            }
+        }
+
+        public int SelectedFarmIndex
+        {
+            get
+            {
+                for (int i = 0; i < Farms.Count(); i++)
+                {
+                    if (Farms[i].Name.ToLower().Trim() == SelectedFarm.ToLower().Trim()) return i;
+                }
+
+                return -1;
+            }
+        }
+
+        private string _selectedField;
+        public string SelectedField
+        {
+            get
+            {
+                return _selectedField;
+            }
+            set
+            {
+                Set<String>(() => SelectedField, ref _selectedField, value);
+            }
+        }
+
+        public int SelectedFieldIndex
+        {
+            get
+            {
+                for (int i = 0; i < Fields.Count(); i++)
+                {
+                    if (Fields[i].Name.ToLower().Trim() == SelectedField.ToLower().Trim()) return i;
+                }
+
+                return -1;
+            }
+        }
+
 
         private string _notes;
         public string Notes
@@ -351,19 +503,64 @@ namespace RFIDModuleScan.Core.ViewModels
 
         private bool validateForm()
         {
+            if (string.IsNullOrWhiteSpace(Grower))
+            {
+                HasGrowerError = true;
+                GrowerError = "required";
+            }
+            else if (_dataService.ClientNameExists(Grower) && SelectedClientIndex == 1)
+            {
+                HasGrowerError = true;
+                GrowerError = "Client already exists.";
+            }
+            else
+            {
+                HasGrowerError = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(Farm))
+            {
+                HasFarmError = true;
+                FarmError = "required";
+            }
+            else if (_dataService.FarmNameExists(Grower, Farm) && SelectedFarmIndex == 1)
+            {
+                HasFarmError = true;
+                FarmError = "Farm already exists.";
+            }
+            else
+            {
+                HasFarmError = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(Field))
+            {
+                HasFieldError = true;
+                FieldError = "required";
+            }
+            else if (_dataService.FieldNameExists(Grower, Farm, Field) && SelectedFieldIndex == 1)
+            {
+                HasFieldError = true;
+                FieldError = "Field already exists.";
+            }
+            else {
+                HasFieldError = false;
+            }
+
+
             if (IsStagingScan)
             {
-                return (!string.IsNullOrWhiteSpace(Grower) &&
-                    !string.IsNullOrWhiteSpace(Farm) &&
-                    !string.IsNullOrWhiteSpace(Field) &&
+                return (!HasGrowerError &&
+                    !HasFarmError &&
+                    !HasFieldError &&
                     ValidationHelper.ValidInt(StartingLoadNumber) &&
                     ValidationHelper.ValidInt(MaxModulesPerLoad));
             }
             else
             {
-                return (!string.IsNullOrWhiteSpace(Grower) &&
-                    !string.IsNullOrWhiteSpace(Farm) &&
-                    !string.IsNullOrWhiteSpace(Field) &&
+                return (!HasGrowerError &&
+                    !HasFarmError &&
+                    !HasFieldError &&
                     !string.IsNullOrWhiteSpace(ScanLocation) &&
                     ValidationHelper.ValidInt(StartingLoadNumber) &&
                     ValidationHelper.ValidInt(MaxModulesPerLoad));
@@ -374,6 +571,87 @@ namespace RFIDModuleScan.Core.ViewModels
         {
             //return false;
             return _loads.Any(l => l.Modules.Any(m => m.SerialNumber == serialNumber));
+        }
+
+        private void setListSelections(List<Farm> dbFarms, List<Field> dbFields, string clientName, string farmName, string fieldName, bool defaultToAdd)
+        {
+            //set selected items if possible
+            var selectedClient = Clients.SingleOrDefault(c => c.Name.Trim().ToLower() == clientName.Trim().ToLower());
+
+            Farms.Clear();
+            Fields.Clear();
+            if (selectedClient != null)
+            {
+                SelectedClient = selectedClient.Name;
+
+                if (SelectedClient != "-- Select One --" && SelectedClient != "-- Add New --")
+                    Grower = SelectedClient;
+                else
+                    Grower = "";
+
+                Farms.Add(new Data.Farm { ID = Guid.Empty, Name = "-- Select One --" });
+                Farms.Add(new Data.Farm { ID = Guid.Empty, Name = "-- Add New --" });
+                foreach (var f in dbFarms.Where(i => i.ClientId == selectedClient.ID.ToString()))
+                {
+                    Farms.Add(f);
+                }
+
+                setFarmSelection(dbFields, farmName, fieldName, defaultToAdd);
+            }
+            else
+            {
+                SelectedClient = defaultToAdd ? "-- Add New --" : "-- Select One --";
+                Grower = clientName;
+            }
+        }
+
+        private void setFarmSelection(List<Field> dbFields, string farmName, string fieldName, bool defaultToAdd)
+        {
+            var selectedFarm = Farms.SingleOrDefault(f => f.Name.Trim().ToLower() == farmName.Trim().ToLower());
+            Fields.Clear();
+            if (selectedFarm != null)
+            {
+                SelectedFarm = selectedFarm.Name;
+
+                if (SelectedFarm != "-- Select One --" && SelectedFarm != "-- Add New --")
+                    Farm = SelectedFarm;
+                else
+                    Farm = "";
+
+                Fields.Add(new Data.Field { ID = Guid.Empty, Name = "-- Select One --" });
+                Fields.Add(new Data.Field { ID = Guid.Empty, Name = "-- Add New --" });
+                foreach (var f in dbFields.Where(i => i.FarmId == selectedFarm.ID.ToString()))
+                {
+                    Fields.Add(f);
+                }
+                setFieldSelection(fieldName, defaultToAdd);
+            }
+            else
+            {
+                //no matching farm found
+                SelectedFarm = defaultToAdd ? "-- Add New --" : "-- Select One --";
+                Farm = farmName;
+            }
+        }
+
+        private void setFieldSelection(string fieldName, bool defaultToAdd)
+        {
+            var selectedField = Fields.SingleOrDefault(f => f.Name.Trim().ToLower() == fieldName.Trim().ToLower());
+            if (selectedField != null)
+            {
+                SelectedField = selectedField.Name;
+
+                if (SelectedField != "-- Select One --" && SelectedField != "-- Add New --")
+                    Field = SelectedField;
+                else
+                    Field = "";
+            }
+            else
+            {
+                //no matching field found
+                SelectedField = defaultToAdd ? "-- Add New --" : "-- Select One --";
+                Field = fieldName;
+            }
         }
 
         private void addModules(List<ModuleScanViewModel> scans)
@@ -492,7 +770,9 @@ namespace RFIDModuleScan.Core.ViewModels
 
             IsStagingScan = (listType == ListTypeEnum.Staging);
 
-           
+            AddClientViewModel = new AddClientViewModel(_dataService);
+            AddFarmViewModel = new AddFarmViewModel(_dataService);
+            AddFieldViewModel = new AddFieldViewModel(_dataService);           
 
             itemQueue = new Queue<ScanEventData>();
 
@@ -510,6 +790,7 @@ namespace RFIDModuleScan.Core.ViewModels
 
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<NotesChangedMessage>(this, this.SaveNotes);
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<ReviewCancelMessage>(this, this.HandleReviewCancel);
+            
         }
 
         public void Dispose()
@@ -532,12 +813,55 @@ namespace RFIDModuleScan.Core.ViewModels
             this.Cleanup();
         }
 
+     
+        private void initLists()
+        {           
+
+            _dataService.GetLocalLists(dbClients, dbFarms, dbFields);
+
+            Clients = new ObservableCollection<Client>();
+            Farms = new ObservableCollection<Farm>();
+            Fields = new ObservableCollection<Field>();
+
+            Clients.Add(new Client { ID = System.Guid.Empty, Name = "-- Select One --" });
+            Clients.Add(new Client { ID = System.Guid.Empty, Name = "-- Add New --" });
+            foreach (var c in dbClients)
+            {
+                Clients.Add(c);
+            }
+            SelectedClient = "-- Select One --";
+
+            Farms.Add(new Farm { ID = System.Guid.Empty, Name = "-- Select One --" });
+            Farms.Add(new Farm { ID = System.Guid.Empty, Name = "-- Add New --" });
+            SelectedFarm = "-- Select One --";
+
+            Fields.Add(new Field { ID = System.Guid.Empty, Name = "-- Select One --" });
+            Fields.Add(new Field { ID = System.Guid.Empty, Name = "-- Add New --" });
+            SelectedField = "-- Select One --";
+        }
+
         public void Initialize()
         {
             IsReviewMode = false;
             IsBusy = true;
+            
             BusyMessage = "Loading...";
+            
+            if (Configuration.ConnectedToGin)
+            {
+                _dataService.SyncRemoteLists(); //sync client/farm/field lists
+            }
+           
+                               
+            HasFarmError = false;
+            HasGrowerError = false;
+            HasFieldError = false;
+            FarmError = "required";
+            FieldError = "required";
+            GrowerError = "required";
 
+            initLists();
+          
             if (!IsStagingScan) //there will only be one drop location scan list on device
             {
                 MaxModulesPerLoad = int.MaxValue.ToString();
@@ -615,9 +939,13 @@ namespace RFIDModuleScan.Core.ViewModels
                 StartingLoadNumber = scan.StartingLoadNumber.ToString();
                 MaxModulesPerLoad = scan.MaxModulesPerLoad.ToString();
                 AutoLoadAssign = scan.AutoLoadAssign;
+
                 Grower = scan.Grower;
                 Field = scan.Field;
                 Farm = scan.Farm;
+
+                setListSelections(dbFarms, dbFields, scan.Grower, scan.Farm, scan.Field, true);
+
                 ScanLocation = scan.ScanLocation;
                 Notes = scan.Note;
                 CanEditStartingLoadNumber = true;
@@ -689,6 +1017,7 @@ namespace RFIDModuleScan.Core.ViewModels
                 CanEditStartingLoadNumber = true;
                 _origStartLoadNumber = StartingLoadNumber = "1";
                 AutoLoadAssign = true;
+                               
 
                 if (IsStagingScan)
                 {
@@ -705,7 +1034,15 @@ namespace RFIDModuleScan.Core.ViewModels
         }
 
         #endregion
-                
+
+        #region Add Dialog View Models
+
+        public AddClientViewModel AddClientViewModel { get; set; }
+        public AddFarmViewModel   AddFarmViewModel   { get; set; }
+        public AddFieldViewModel  AddFieldViewModel  { get; set; }
+
+        #endregion
+
         #region View Commands
         private void persistScanCounts()
         {
@@ -733,13 +1070,69 @@ namespace RFIDModuleScan.Core.ViewModels
         {
             if (validateForm())
             {
+
+                var clients = new List<Client>();
+                var farms = new List<Farm>();
+                var fields = new List<Field>();
+
+                _dataService.GetLocalLists(clients, farms, fields);
+
+                var clientObj = clients.FirstOrDefault(c => c.Name.Trim().ToLower() == Grower.Trim().ToLower());
+                Farm farmObj = null;
+                Field fieldObj = null;
+                if (clientObj != null)
+                {
+                    farmObj = farms.FirstOrDefault(f => f.ClientId == clientObj.ID.ToString() && f.Name.ToLower().Trim() == Farm.ToLower().Trim());
+
+                    if (farmObj != null)
+                    {
+                        fieldObj = fields.FirstOrDefault(f => f.FarmId == farmObj.ID.ToString() && f.Name.ToLower().Trim() == Field.ToLower().Trim());
+                    }                   
+                }
+
+                if (clientObj == null) //create new client
+                {
+                    clientObj = new Client();
+                    clientObj.Name = Grower.Trim();
+                    clientObj.Source = "Local";
+                    clientObj.EntityType = "CLIENT";
+                    _dataService.Save<Client>(clientObj);                    
+                }
+
+                if (farmObj == null)
+                {
+                    farmObj = new Data.Farm();
+                    farmObj.Name = Farm.Trim();
+                    farmObj.Source = "Local";
+                    farmObj.ClientId = clientObj.ID.ToString();
+                    farmObj.EntityType = "FARM";
+                    _dataService.Save<Farm>(farmObj);
+                }
+
+                if (fieldObj == null)
+                {
+                    fieldObj = new Data.Field();
+                    fieldObj.Name = Field.Trim();
+                    fieldObj.Source = "Local";
+                    fieldObj.FarmId = farmObj.ID.ToString();
+                    fieldObj.EntityType = "FIELD";
+                    _dataService.Save<Field>(fieldObj);
+                }
+
+                
+
                 //save                
                 IsEditMode = false;
+
                 FieldScan scan = new FieldScan();
                 scan.AutoLoadAssign = AutoLoadAssign;
                 scan.Farm = Farm;
+                scan.FarmID = (farmObj != null) ? farmObj.ID.ToString() : "";
                 scan.Field = Field;
+                scan.FieldID = (fieldObj != null) ? fieldObj.ID.ToString() : "";
                 scan.Grower = Grower;
+                scan.GrowerID = (clientObj != null) ? clientObj.ID.ToString() : "";
+
                 scan.ListTypeID = (int)_listType;
                 scan.MaxModulesPerLoad = int.Parse(MaxModulesPerLoad);
                 scan.Note = Notes;
@@ -754,6 +1147,13 @@ namespace RFIDModuleScan.Core.ViewModels
                 _fieldScanID = _dataService.Save(scan);
                                 
                 persistScanCounts();
+                
+                //reload local lists
+                initLists();
+
+                SelectedClient = Grower;
+                SelectedFarm = Farm;
+                SelectedField = Field;
             }
         }
 
@@ -904,6 +1304,12 @@ namespace RFIDModuleScan.Core.ViewModels
                     ScanLocation = _origScanLocation;
                     MaxModulesPerLoad = _origMaxModulesPerLoad;
                     StartingLoadNumber = _origStartLoadNumber;
+
+
+                    SelectedFarm = Farm;
+                    SelectedField = Field;
+                    SelectedClient = Grower;
+                    //TODO
                 }
             }
         }
@@ -915,6 +1321,10 @@ namespace RFIDModuleScan.Core.ViewModels
             {
                 IsEditMode = true;
 
+                HasFarmError = false;
+                HasFieldError = false;
+                HasGrowerError = false;
+
                 //save original form values for cancellation
                 _orgField = Field;
                 _origAutoLoadAssign = AutoLoadAssign;
@@ -923,6 +1333,8 @@ namespace RFIDModuleScan.Core.ViewModels
                 _origGrower = Grower;
                 _origMaxModulesPerLoad = MaxModulesPerLoad;
                 _origStartLoadNumber = StartingLoadNumber;
+
+                GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<OpenScanEditFormMessage>(new OpenScanEditFormMessage { Grower = Grower, Farm = Farm, Field = Field });
             }
         }
 
@@ -1004,7 +1416,7 @@ namespace RFIDModuleScan.Core.ViewModels
                     extension = ".TXT";
                 }
 
-                string body = string.Format("GROWER: {0}\r\nFARM: {1}\r\nFIELD: {2}\r\nNOTES: \r\n{3}\r\n\r\nPlease see attached load list.\r\n", Grower, Farm, Field, Notes);
+                string body = string.Format("CLIENT: {0}\r\nFARM: {1}\r\nFIELD: {2}\r\nNOTES: \r\n{3}\r\n\r\nPlease see attached load list.\r\n", Grower, Farm, Field, Notes);
 
                 IFileService svc = Xamarin.Forms.DependencyService.Get<IFileService>();
                 IEmailService _emailService = Xamarin.Forms.DependencyService.Get<IEmailService>();
@@ -1014,7 +1426,9 @@ namespace RFIDModuleScan.Core.ViewModels
                 List<string> files = new List<string>();
                 files.Add(fullPath);
 
-                _emailService.ShowDraft("Module List", body, false, "", files);
+                string toEmail = Configuration.GinEmail ?? "";
+
+                _emailService.ShowDraft("Module List", body, false, toEmail, files);
 
                 IsBusy = false;
                 BusyMessage = "Loading...";
@@ -1073,6 +1487,38 @@ namespace RFIDModuleScan.Core.ViewModels
 
                 IsBusy = false;
             });
+        }
+
+        public void SelectNewClient(string clientName)
+        {
+            List<Client> dbClients = new List<Client>();
+            List<Farm> dbFarms = new List<Data.Farm>();
+            List<Field> dbFields = new List<Field>();
+
+            _dataService.GetLocalLists(dbClients, dbFarms, dbFields);
+           
+            setListSelections(dbFarms, dbFields, clientName, "", "", clientName == "-- Add New --");           
+        }
+
+        public void SelectNewFarm(string farmName)
+        {
+            List<Client> dbClients = new List<Client>();
+            List<Farm> dbFarms = new List<Data.Farm>();
+            List<Field> dbFields = new List<Field>();
+
+            _dataService.GetLocalLists(dbClients, dbFarms, dbFields);
+            
+            setFarmSelection(dbFields, farmName, "", farmName == "-- Add New --");
+        }
+
+        public void SelectNewField(string fieldName)
+        {
+            List<Client> dbClients = new List<Client>();
+            List<Farm> dbFarms = new List<Data.Farm>();
+            List<Field> dbFields = new List<Field>();
+
+            _dataService.GetLocalLists(dbClients, dbFarms, dbFields);
+            setFieldSelection(fieldName, fieldName == "-- Add New --");
         }
 
         #endregion

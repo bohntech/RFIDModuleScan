@@ -114,7 +114,13 @@ namespace RFIDModuleScan.Core.ViewModels
                             }
                         }
                     }
+                }                
+                
+                if (!Configuration.ConnectedToGin)
+                {
+                    _dataService.CleanUpLists(); //clean up unused client/farm/field records if not in gin/mode
                 }
+
                 IsBusy = false;
             });
         }
@@ -163,7 +169,8 @@ namespace RFIDModuleScan.Core.ViewModels
                 List<string> files = new List<string>();
                 files.Add(fullPath);
 
-                _emailService.ShowDraft("All Scans", body, false, "", files);
+                string toEmail = Configuration.GinEmail ?? "";
+                _emailService.ShowDraft("All Scans", body, false, toEmail, files);
 
                 IsBusy = false;
                 BusyMessage = "Loading...";

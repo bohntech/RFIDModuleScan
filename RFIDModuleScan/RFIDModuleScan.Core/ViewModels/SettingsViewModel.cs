@@ -12,6 +12,7 @@ using RFIDModuleScan.Core.Scanners;
 using GalaSoft.MvvmLight.Views;
 using RFIDModuleScan.Core.Data;
 using RFIDModuleScan.Core.Enums;
+using RFIDModuleScan.Core.Messages;
 
 namespace RFIDModuleScan.Core.ViewModels
 {    
@@ -106,6 +107,106 @@ namespace RFIDModuleScan.Core.ViewModels
             }
         }
 
+        #region Gin Connection Settings
+        private bool _isConnectedToGin = false;
+        public bool IsConnectedToGin
+        {
+            get
+            {
+                return _isConnectedToGin;
+            }
+            private set
+            {
+                Set<bool>(() => IsConnectedToGin, ref _isConnectedToGin, value);
+            }
+        }
+
+        private string _appMode;
+        public string AppMode
+        {
+            get
+            {
+                return _appMode;
+            }
+            private set
+            {
+                Set<string>(() => AppMode, ref _appMode, value);
+            }
+        }
+
+        private string _ginName;
+        public string GinName
+        {
+            get
+            {
+                return _ginName;
+            }
+            private set
+            {
+                Set<string>(() => GinName, ref _ginName, value);
+            }
+        }
+
+        private string _ginDBUrl;
+        public string GinDBUrl
+        {
+            get
+            {
+                return _ginDBUrl;
+            }
+            private set
+            {
+                Set<string>(() => GinDBUrl, ref _ginDBUrl, value);
+            }
+        }
+
+        private string _ginDBKey;
+        public string GinDBKey
+        {
+            get
+            {
+                return _ginDBKey;
+            }
+            private set
+            {
+                Set<string>(() => GinDBKey, ref _ginDBKey, value);
+            }
+        }
+
+        private string _ginEmail;
+        public string GinEmail
+        {
+            get
+            {
+                return _ginEmail;
+            }
+            private set
+            {
+                Set<string>(() => GinEmail, ref _ginEmail, value);
+            }
+        }
+        #endregion
+
+
+        private void fetchGinSettings()
+        {
+            GinName = Configuration.GinName;
+            GinDBUrl = Configuration.GinDBUrl;
+            GinEmail = Configuration.GinEmail;
+            GinDBKey = Configuration.GinDBKey;
+
+            if (!string.IsNullOrWhiteSpace(GinDBUrl))
+            {
+                AppMode = "Gin mode";
+            }
+            else
+            {
+                AppMode = "Standalone mode";
+            }
+
+            IsConnectedToGin = !string.IsNullOrWhiteSpace(GinDBUrl);
+        }
+
         public SettingsViewModel(INavigationService navigationService)
         {
             _navigationService = navigationService;
@@ -114,6 +215,9 @@ namespace RFIDModuleScan.Core.ViewModels
             ConnectToSelected = new RelayCommand(this.ExecuteConnectToSelected, this.CanExecuteConnectToSelected);
             Disconnect = new RelayCommand(this.ExecuteDisconnect, this.CanExecuteDisconnect);
             OpenConnections = new RelayCommand(this.ExecuteOpenConnections, this.CanExecuteOpenConnections);
+
+            ConnectToGin = new RelayCommand(this.ExecuteConnectToGin);
+            DisconnectFromGin = new RelayCommand(this.ExecuteDisconnectFromGin);
 
             AvailableScanners = new ObservableCollection<ScannerModel>();
 
@@ -124,7 +228,9 @@ namespace RFIDModuleScan.Core.ViewModels
             ScanSettings.MaxModulesPerLoad = Configuration.MaxModulesPerLoad.ToString();
             ScanSettings.TabletID = Configuration.TabletID;
 
-            
+            fetchGinSettings();
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<GinQRCodeScannedMessage>(this, HandleGinQRScanned);            
+                                                                        
             ScanSettings.SelectedExportIndex = (int)Configuration.SelectedExportFormat;
 
             if (ScannerConnectionManager.ScannerContext != null)
@@ -147,6 +253,8 @@ namespace RFIDModuleScan.Core.ViewModels
 
         public void Dispose()
         {
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Unregister<GinQRCodeScannedMessage>(this);
+
             if (ScannerConnectionManager.ScannerContext != null)
             {
                 ScannerConnectionManager.ScannerContext.ConnectionStateChanged -= ActiveScanner_ConnectionStateChanged;
@@ -186,6 +294,11 @@ namespace RFIDModuleScan.Core.ViewModels
             }
         }
 
+        private void HandleGinQRScanned(GinQRCodeScannedMessage message)
+        {
+            fetchGinSettings();
+        }
+
         //save command
         public RelayCommand SaveSettings
         {
@@ -209,6 +322,40 @@ namespace RFIDModuleScan.Core.ViewModels
         {
             return true;
         }
+
+        #region Connect to Gin Commands
+        public RelayCommand ConnectToGin
+        {
+            get;
+            private set;
+        }
+
+        public RelayCommand DisconnectFromGin
+        {
+            get;
+            private set;
+        }
+
+        private void ExecuteConnectToGin()
+        {
+            _navigationService.NavigateTo(ViewLocator.GinConnectPage);
+        }
+
+        private void ExecuteDisconnectFromGin()
+        {
+            _db.SaveSetting(AppSettingID.GinDBKey, string.Empty);
+            _db.SaveSetting(AppSettingID.GinDBUrl, string.Empty);
+            _db.SaveSetting(AppSettingID.GinEmail, string.Empty);
+            _db.SaveSetting(AppSettingID.GinName, string.Empty);
+
+            IsConnectedToGin = false;
+            GinName = string.Empty;
+            GinEmail = string.Empty;
+            GinDBUrl = string.Empty;
+            GinDBKey = string.Empty;
+            AppMode = "Standalone mode";
+        }
+        #endregion
 
 
         //refresh command
@@ -271,11 +418,8 @@ namespace RFIDModuleScan.Core.ViewModels
         {
             return true;
         }
-
-
-
+        
         //disconnect command
-
         public RelayCommand Disconnect
         {
             get;

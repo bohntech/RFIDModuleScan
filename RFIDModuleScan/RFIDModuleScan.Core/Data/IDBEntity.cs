@@ -14,4 +14,15 @@ namespace RFIDModuleScan.Core.Data
         string GetTableHeader();
         string GetCSVLine();
     }
+
+    public interface IListEntity : IDBEntity
+    {
+        string Name { get; set; }
+        string Source { get; set; }        
+        string EntityType { get; set; }
+
+        Guid? PreviousID { get; set; }
+
+        string CompareKey { get; }
+    }
 }

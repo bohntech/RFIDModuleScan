@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RFIDModuleScan.Views.GinConnectPage" Style="{StaticResource mainPage}" Title="Scan QR Code">
+    <Grid HorizontalOptions="FillAndExpand">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0" HorizontalOptions="FillAndExpand" Padding="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />                
+            </Grid.RowDefinitions>
+            
+            <Label Text="Scan QR code to configure connection." Grid.Row="0" Grid.Column="0" FontSize="Medium"  FontAttributes="Bold"  />            
+           
+        </Grid>
+        <AbsoluteLayout x:Name="absLayout" Grid.Column="0" Grid.Row="1" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+
+
+        </AbsoluteLayout>
+    </Grid>
+</ContentPage>

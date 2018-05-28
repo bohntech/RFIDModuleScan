@@ -15,6 +15,7 @@
             <converter:NotConverter x:Key="NotConverter"/>
             <converter:EmptyStringToColorConverter x:Key="EmptyStringToColorConverter"/>
             <converter:EmptyStringVisibleConverter x:Key="EmptyStringVisibleConverter"/>
+            <converter:PickerValueVisibilityConverter x:Key="PickerValueVisibilityConverter"/>
             <converter:InvalidRequiredIntMessageConverter x:Key="InvalidRequiredIntMessageConverter"/>
             <converter:InvalidRequiredIntMessageVisibleConverter x:Key="InvalidRequiredIntMessageVisibleConverter"/>
             <converter:ModuleCountToTextConverter x:Key="ModuleCountToTextConverter"/>
@@ -50,13 +51,16 @@
             <StackLayout Padding="5,5,5,0" Grid.Row="1" Grid.Column="0" IsVisible="{Binding IsEditMode}" MinimumHeightRequest="0" >           
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>  <!--GROWER PICKER -->
+                        <RowDefinition Height="Auto"></RowDefinition> <!-- GROWER ENTRY -->                        
+                        <RowDefinition Height="Auto"></RowDefinition>  <!--GROWER ERROR -->
+                        <RowDefinition Height="Auto"></RowDefinition>  <!--FARM  PICKER -->
+                        <RowDefinition Height="Auto"></RowDefinition> <!-- FARM ENTRY -->
+                        <RowDefinition Height="Auto"></RowDefinition>  <!--FARM ERROR  -->
 
-                        <RowDefinition Height="Auto"></RowDefinition>
-                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition> <!-- FIELD PICKER-->
+                        <RowDefinition Height="Auto"></RowDefinition> <!-- FIELD ENTRY -->
+                        <RowDefinition Height="Auto"></RowDefinition> <!-- FIELD ERROR -->
                         <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
 
@@ -70,38 +74,45 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <Label Text="Grower: " Grid.Row="0" Grid.Column="0" VerticalOptions="Center" />
-                    <Entry Grid.Row="0" Grid.Column="1" Placeholder="Enter grower" Text="{Binding Grower, Mode=TwoWay}"   
+                    <Label Text="Client: " Grid.Row="0" Grid.Column="0" VerticalOptions="Center" />
+                    <Picker x:Name="clientPicker" Grid.Row="0" Grid.Column="1"  SelectedIndexChanged="clientPicker_SelectedIndexChanged"   />
+                    <Entry Grid.Row="1" Grid.Column="1" Placeholder="Enter grower" Text="{Binding Grower, Mode=TwoWay}" IsVisible="{Binding SelectedClient, Converter={StaticResource PickerValueVisibilityConverter}}"   
                                BackgroundColor="{Binding Grower, Converter={StaticResource EmptyStringToColorConverter}}" />
-                    <Label Grid.Row="1" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding Grower, Converter={StaticResource EmptyStringVisibleConverter}}" />
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding GrowerError}" Style="{StaticResource errorLabel}" IsVisible="{Binding HasGrowerError}" />
 
-                    <Label Text="Farm: " Grid.Row="2" Grid.Column="0" VerticalOptions="Center" />
-                    <Entry Grid.Row="2" Grid.Column="1" Placeholder="Enter farm" Text="{Binding Farm, Mode=TwoWay}"  HorizontalOptions="Fill" BackgroundColor="{Binding Farm, Converter={StaticResource EmptyStringToColorConverter}}" />
-                    <Label Grid.Row="3" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding Farm, Converter={StaticResource EmptyStringVisibleConverter}}" />
-
-
-                    <Label Text="Field: " Grid.Row="4" Grid.Column="0" VerticalOptions="Center" />
-                    <Entry Grid.Row="4" Grid.Column="1" Placeholder="Enter field" Text="{Binding Field, Mode=TwoWay}"  HorizontalOptions="Fill" BackgroundColor="{Binding Field, Converter={StaticResource EmptyStringToColorConverter}}"/>
-                    <Label Grid.Row="5" Grid.Column="1" Text="required" Style="{StaticResource errorLabel}" IsVisible="{Binding Field, Converter={StaticResource EmptyStringVisibleConverter}}" />
+                    <Label Text="Farm: " Grid.Row="3" Grid.Column="0" VerticalOptions="Center" />
+                    <Picker x:Name="farmPicker" Grid.Row="3" Grid.Column="1" SelectedIndexChanged="farmPicker_SelectedIndexChanged"  />
+                    <Entry Grid.Row="4" Grid.Column="1" Placeholder="Enter farm" Text="{Binding Farm, Mode=TwoWay}"  HorizontalOptions="Fill"
+                           IsVisible="{Binding SelectedFarm, Converter={StaticResource PickerValueVisibilityConverter}}"
+                           BackgroundColor="{Binding Farm, Converter={StaticResource EmptyStringToColorConverter}}" />
+                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding FarmError}" Style="{StaticResource errorLabel}" IsVisible="{Binding HasFarmError}" />
 
 
-                    <Label Text="Start Load#: " Grid.Row="6" Grid.Column="0" VerticalOptions="Center" />
-                    <Entry Grid.Row="6" Grid.Column="1" Placeholder="" Text="{Binding StartingLoadNumber, Mode=TwoWay}" Keyboard="Numeric" 
+                    <Label Text="Field: " Grid.Row="6" Grid.Column="0" VerticalOptions="Center" />
+                    <Picker x:Name="fieldPicker" Grid.Row="6" Grid.Column="1"  SelectedIndexChanged="fieldPicker_SelectedIndexChanged" />
+                    <Entry Grid.Row="7" Grid.Column="1" Placeholder="Enter field" Text="{Binding Field, Mode=TwoWay}"  
+                           IsVisible="{Binding SelectedField, Converter={StaticResource PickerValueVisibilityConverter}}"
+                           HorizontalOptions="Fill" BackgroundColor="{Binding Field, Converter={StaticResource EmptyStringToColorConverter}}"/>
+                    <Label Grid.Row="8" Grid.Column="1" Text="{Binding FieldError}" Style="{StaticResource errorLabel}" IsVisible="{Binding HasFieldError}" />
+
+
+                    <Label Text="Start Load#: " Grid.Row="9" Grid.Column="0" VerticalOptions="Center" />
+                    <Entry Grid.Row="9" Grid.Column="1" Placeholder="" Text="{Binding StartingLoadNumber, Mode=TwoWay}" Keyboard="Numeric" 
                        BackgroundColor="{Binding StartingLoadNumber, Mode=OneWay, Converter={StaticResource InvalidIntStringColorConverter}}" 
                        IsEnabled="{Binding CanEditStartingLoadNumber}" 
                        TextColor="{Binding StartingLoadNumber, Mode=OneWay, Converter={StaticResource InvalidIntStringTextColorConverter}}" 
                        HorizontalOptions="Fill" />
-                    <Label Grid.Row="7" Grid.Column="1" Text="{Binding StartingLoadNumber, Converter={StaticResource InvalidRequiredIntMessageConverter}}" Style="{StaticResource errorLabel}"
+                    <Label Grid.Row="10" Grid.Column="1" Text="{Binding StartingLoadNumber, Converter={StaticResource InvalidRequiredIntMessageConverter}}" Style="{StaticResource errorLabel}"
                        IsVisible="{Binding StartingLoadNumber, Converter={StaticResource InvalidRequiredIntMessageVisibleConverter}}"/>
 
 
-                    <Label Text="Auto load assign " Grid.Row="8" Grid.Column="0" VerticalOptions="Center"/>
-                    <Switch IsEnabled="True" IsToggled="{Binding AutoLoadAssign}" Grid.Row="8" Grid.Column="1" HorizontalOptions="Start" />
+                    <Label Text="Auto load assign " Grid.Row="11" Grid.Column="0" VerticalOptions="Center"/>
+                    <Switch IsEnabled="True" IsToggled="{Binding AutoLoadAssign}" Grid.Row="11" Grid.Column="1" HorizontalOptions="Start" />
 
-                    <Label Text="Max SNs/Load" Grid.Row="9" Grid.Column="0" VerticalOptions="Center" IsVisible="{Binding MaxModulesPerLoadVisible}" />
+                    <Label Text="Max SNs/Load" Grid.Row="12" Grid.Column="0" VerticalOptions="Center" IsVisible="{Binding MaxModulesPerLoadVisible}" />
 
-                    <Entry  Grid.Row="9" Grid.Column="1" Keyboard="Numeric"  Text="{Binding MaxModulesPerLoad}" BackgroundColor="{Binding MaxModulesPerLoad, Mode=OneWay, Converter={StaticResource InvalidIntStringColorConverter}}" TextColor="{Binding MaxModulesPerLoad, Mode=OneWay, Converter={StaticResource InvalidIntStringTextColorConverter}}" IsVisible="{Binding MaxModulesPerLoadVisible}" HorizontalOptions="Fill" />
-                    <Label Grid.Row="10" Grid.Column="1" Text="{Binding MaxModulesPerLoad, Converter={StaticResource InvalidRequiredIntMessageConverter}}" Style="{StaticResource errorLabel}"
+                    <Entry  Grid.Row="12" Grid.Column="1" Keyboard="Numeric"  Text="{Binding MaxModulesPerLoad}" BackgroundColor="{Binding MaxModulesPerLoad, Mode=OneWay, Converter={StaticResource InvalidIntStringColorConverter}}" TextColor="{Binding MaxModulesPerLoad, Mode=OneWay, Converter={StaticResource InvalidIntStringTextColorConverter}}" IsVisible="{Binding MaxModulesPerLoadVisible}" HorizontalOptions="Fill" />
+                    <Label Grid.Row="13" Grid.Column="1" Text="{Binding MaxModulesPerLoad, Converter={StaticResource InvalidRequiredIntMessageConverter}}" Style="{StaticResource errorLabel}"
                                IsVisible="{Binding MaxModulesPerLoad, Converter={StaticResource InvalidRequiredIntMessageVisibleConverter}}"/>
 
                 </Grid>
@@ -186,6 +197,7 @@
         <usercontrols:MessagePromptView x:Name="deleteAllPrompt" BindingContext="{Binding .}"  OkCommand="{Binding DeleteAllCommand}"  AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="False"  />
         <usercontrols:MessagePromptView x:Name="renumberPrompt" BindingContext="{Binding .}"  OkCommand="{Binding RenumberCommand}"  AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="False"  />
         <usercontrols:MoveModulesView x:Name="moveModulesView" BindingContext="{Binding .}"  OkCommand="{Binding MoveCommand}"  AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" IsVisible="False" />
+            
         <usercontrols:BusyIndicatorView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BusyMessage="{Binding BusyMessage}" IsVisible="{Binding IsBusy}" />
     </AbsoluteLayout>
 </ContentPage>

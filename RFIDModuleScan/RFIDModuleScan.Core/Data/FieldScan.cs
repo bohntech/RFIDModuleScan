@@ -13,8 +13,14 @@ namespace RFIDModuleScan.Core.Data
         [PrimaryKey]
         public Guid ID { get; set; }
         public string Grower { get; set; }
+        public string GrowerID { get; set; }  //same as client id
+
         public string Farm { get; set; }
+        public string FarmID { get; set; }
+
         public string Field { get; set; }
+        public string FieldID { get; set; }
+
         public int MaxModulesPerLoad { get; set; }
         public int ListTypeID { get; set; }
         public string ScanLocation { get; set; }

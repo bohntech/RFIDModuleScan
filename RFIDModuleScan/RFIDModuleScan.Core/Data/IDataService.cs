@@ -29,5 +29,17 @@ namespace RFIDModuleScan.Core.Data
         void ClearData();
         void DeleteScanAndRelatedData(Guid fieldScanID);
         void UpdateLoadNumber(Guid LoadID, int LoadNumber);
+        void GetLocalLists(List<Client> clients, List<Farm> farms, List<Field> fields);
+
+        bool ClientNameExists(string clientName);
+        bool FarmNameExists(string clientName, string farmName);        
+        bool FieldNameExists(string clientName, string farmName, string fieldName);
+
+        void AddClient(string clientName);
+        void AddFarm(string clientName, string farmName);
+        void AddField(string clientName, string farmName, string fieldName);
+
+        void SyncRemoteLists();
+        void CleanUpLists();
     }
 }

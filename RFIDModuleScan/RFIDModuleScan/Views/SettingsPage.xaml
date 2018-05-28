@@ -12,63 +12,61 @@
             <converter:EmptyStringVisibleConverter x:Key="EmptyStringVisibleConverter"/>
             <converter:InvalidRequiredIntMessageConverter x:Key="InvalidRequiredIntMessageConverter"/>
             <converter:InvalidRequiredIntMessageVisibleConverter x:Key="InvalidRequiredIntMessageVisibleConverter"/>
+            <converter:NotConverter x:Key="NotConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
     <ScrollView >
-        <StackLayout>                     
-                <StackLayout BackgroundColor="#ffffff">
-                    <StackLayout Padding="5" BackgroundColor="#c2c2c2">
-                        <Label Text="Scan Settings"  HorizontalOptions="FillAndExpand" BackgroundColor="#c2c2c2" TextColor="#333333" FontSize="Medium" HorizontalTextAlignment="Center" VerticalOptions="FillAndExpand" VerticalTextAlignment="Center" ></Label>
-                    </StackLayout>
-                    <Grid Padding="10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />                            
-                            
-                            <RowDefinition Height="Auto" />                            
-                            <RowDefinition Height="Auto" />
+        <StackLayout>
+            <StackLayout BackgroundColor="#ffffff">
+                <StackLayout Padding="5" BackgroundColor="#c2c2c2">
+                    <Label Text="Scan Settings"  HorizontalOptions="FillAndExpand" BackgroundColor="#c2c2c2" TextColor="#333333" FontSize="Medium" HorizontalTextAlignment="Center" VerticalOptions="FillAndExpand" VerticalTextAlignment="Center" ></Label>
+                </StackLayout>
+                <Grid Padding="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
 
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
 
-                            <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Label Text="Tablet ID" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="End" TextColor="#333333"></Label>
-                        
-                        <Entry Placeholder="Enter tablet id"  Grid.Row="0" Grid.Column="1"  VerticalOptions="Center" HorizontalOptions="FillAndExpand" 
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Text="Tablet ID" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="End" TextColor="#333333"></Label>
+
+                    <Entry Placeholder="Enter tablet id"  Grid.Row="0" Grid.Column="1"  VerticalOptions="Center" HorizontalOptions="FillAndExpand" 
                                    Text="{Binding Path=ScanSettings.TabletID, Mode=TwoWay}"                                    
                                    BackgroundColor="{Binding Path=ScanSettings.TabletID, Converter={StaticResource Key=EmptyStringToColorConverter}}" />
-                        
-                        <Label  Grid.Row="1" Grid.Column="1" Text="required"  Style="{StaticResource errorLabel}"  IsVisible="{Binding Path=ScanSettings.TabletID, Converter={StaticResource Key=EmptyStringVisibleConverter}}" />
 
-                        <Label Text="Serial numbers per load" Grid.Row="2" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Fill" HorizontalTextAlignment="End" TextColor="#333333" ></Label>
-                        <Entry Placeholder="Enter a number"   Grid.Row="2" Grid.Column="1" Keyboard="Numeric"                                 
+                    <Label  Grid.Row="1" Grid.Column="1" Text="required"  Style="{StaticResource errorLabel}"  IsVisible="{Binding Path=ScanSettings.TabletID, Converter={StaticResource Key=EmptyStringVisibleConverter}}" />
+
+                    <Label Text="Serial numbers per load" Grid.Row="2" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Fill" HorizontalTextAlignment="End" TextColor="#333333" ></Label>
+                    <Entry Placeholder="Enter a number"   Grid.Row="2" Grid.Column="1" Keyboard="Numeric"                                 
                                Text="{Binding Path=ScanSettings.MaxModulesPerLoad, Mode=TwoWay}"                                
                                BackgroundColor="{Binding Path=ScanSettings.MaxModulesPerLoad, Converter={StaticResource Key=InvalidIntStringColorConverter}}"/>
 
 
-                        <Label  Grid.Row="3" Grid.Column="1" Style="{StaticResource errorLabel}" 
+                    <Label  Grid.Row="3" Grid.Column="1" Style="{StaticResource errorLabel}" 
                             IsVisible="{Binding Path=ScanSettings.MaxModulesPerLoad, Converter={StaticResource InvalidRequiredIntMessageVisibleConverter}}"
                             Text="{Binding Path=ScanSettings.MaxModulesPerLoad, Converter={StaticResource Key=InvalidRequiredIntMessageConverter}}" />
 
 
                     <Label Text="Export format" Grid.Row="4" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Fill" HorizontalTextAlignment="End" TextColor="#333333" ></Label>
-                    <Picker  x:Name="exportFormatPicker" Grid.Row="4" Grid.Column="1" Title="Export format" SelectedIndexChanged="exportFormatPicker_SelectedIndexChanged"  >                                                
-                    </Picker>   
+                    <Picker  x:Name="exportFormatPicker" Grid.Row="4" Grid.Column="1" Title="Export format" SelectedIndexChanged="exportFormatPicker_SelectedIndexChanged"  >
+                    </Picker>
 
 
                     <Button x:Name="btnSaveSettings" Grid.Row="6" Grid.Column="1" Text="Save" Style="{StaticResource primaryButton}"  Command="{Binding SaveSettings}" />
                 </Grid>
-                    
-                   
-                    
-                </StackLayout>
-           
-                <StackLayout BackgroundColor="#ffffff">
+            </StackLayout>
+
+            <StackLayout BackgroundColor="#ffffff">
                     <StackLayout Padding="5" BackgroundColor="#c2c2c2">
                         <Label Text="Connection Settings"  HorizontalOptions="FillAndExpand" BackgroundColor="#c2c2c2" TextColor="#333333" FontSize="Medium" HorizontalTextAlignment="Center" VerticalOptions="FillAndExpand" VerticalTextAlignment="Center" ></Label>
                     </StackLayout>
@@ -119,7 +117,42 @@
                             <Button x:Name="btnDisconnect" Grid.Column="2" Grid.Row="0" Text=" Disconnect "  Style="{StaticResource primaryButton}" Command="{Binding Disconnect}"/>
                         </Grid>
                     </StackLayout>
-                </StackLayout>       
+                </StackLayout>
+
+            <StackLayout BackgroundColor="#ffffff">
+                <StackLayout Padding="5" BackgroundColor="#c2c2c2">
+                    <Label Text="Gin Connection"  HorizontalOptions="FillAndExpand" BackgroundColor="#c2c2c2" TextColor="#333333" FontSize="Medium" HorizontalTextAlignment="Center" VerticalOptions="FillAndExpand" VerticalTextAlignment="Center" ></Label>
+                </StackLayout>
+                <Grid Padding="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Label Text="Mode: " Grid.Row="0" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="FillAndExpand" HorizontalTextAlignment="End" TextColor="#333333"></Label>
+
+                    <Label Text="{Binding Path=AppMode}" Grid.Row="0" Grid.Column="1" VerticalOptions="Center" HorizontalOptions="FillAndExpand" TextColor="#333333"></Label>
+
+                    <Label IsVisible="{Binding Path=IsConnectedToGin}" 
+                               Text="Connected to: " Grid.Row="1" Grid.Column="0" VerticalOptions="Center" 
+                               HorizontalOptions="FillAndExpand" HorizontalTextAlignment="End" TextColor="#333333"></Label>
+                    <Label IsVisible="{Binding Path=IsConnectedToGin}" 
+                               Text="{Binding Path=GinName}" Grid.Row="1" Grid.Column="1" 
+                               VerticalOptions="Center" HorizontalOptions="FillAndExpand" 
+                               TextColor="#333333"></Label>
+
+                    <Button IsVisible="{Binding Path=IsConnectedToGin, Converter={StaticResource Key=NotConverter}}" x:Name="btnConnectToGin" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Connect to Gin" Style="{StaticResource primaryButton}"  Command="{Binding ConnectToGin}" />
+                    <Button IsVisible="{Binding Path=IsConnectedToGin}" x:Name="btnDisconnectFromGin" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Disconnect from Gin" Style="{StaticResource primaryButton}"  
+                                Command="{Binding DisconnectFromGin}" />
+                </Grid>
+            </StackLayout>
+
+          
         </StackLayout>
     </ScrollView>
 </ContentPage>

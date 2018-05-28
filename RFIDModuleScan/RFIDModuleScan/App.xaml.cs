@@ -37,6 +37,7 @@ namespace RFIDModuleScan
             nav.Configure(ViewLocator.AboutPage, typeof(AboutPage));
             nav.Configure(ViewLocator.OpticalScanPage, typeof(OpticalScanPage));
             nav.Configure(ViewLocator.OpticalFindPage, typeof(OpticalFindPage));
+            nav.Configure(ViewLocator.GinConnectPage, typeof(GinConnectPage));
             SimpleIoc.Default.Register<INavigationService>(() => nav);
             SimpleIoc.Default.Register<IModuleDataService>(() => new ModuleDataService());
 

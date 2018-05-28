@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" package="RF_Module_Scan.RF_Module_Scan" android:versionCode="3" android:versionName="3">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" package="RF_Module_Scan.RF_Module_Scan" android:versionCode="4" android:versionName="4">
 	<uses-sdk android:minSdkVersion="15" />
 	<application android:label="RFID Module Scan" android:icon="@drawable/icon"></application>
 	<uses-permission android:name="android.permission.BLUETOOTH" />
@@ -10,4 +10,6 @@
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-permission android:name="android.permission.FLASHLIGHT" />
 	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.INTERNET" />
 </manifest>
