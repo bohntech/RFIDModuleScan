@@ -42,5 +42,17 @@ namespace RFIDModuleScan.Core.Data
         {
             return string.Format("{0},{1},{2}", ID, FileHelper.EscapeForCSV(Name), FileHelper.EscapeForCSV(Value));
         }
+
+        public string GetDecryptedValue()
+        {
+            try
+            {
+                return RFIDModuleScan.Core.Helpers.EncryptionHelper.Decrypt(Value);
+            }
+            catch (Exception exc)
+            {
+                return "";
+            }
+        }
     }
 }

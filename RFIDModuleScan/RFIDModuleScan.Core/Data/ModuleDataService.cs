@@ -460,11 +460,11 @@ namespace RFIDModuleScan.Core.Data
                     var keySetting = this.GetSetting(AppSettingID.GinDBKey);
 
                     if (endPointSetting != null && keySetting != null &&
-                        !string.IsNullOrWhiteSpace(endPointSetting.Value) &&
-                        !string.IsNullOrWhiteSpace(keySetting.Value))
+                        !string.IsNullOrWhiteSpace(endPointSetting.GetDecryptedValue()) &&
+                        !string.IsNullOrWhiteSpace(keySetting.GetDecryptedValue()))
                     {
                         ICloudDataService cloudSvc = Xamarin.Forms.DependencyService.Get<ICloudDataService>();
-                        cloudSvc.Init(endPointSetting.Value, keySetting.Value);
+                        cloudSvc.Init(endPointSetting.GetDecryptedValue(), keySetting.GetDecryptedValue());
 
                         //get lists from cloud
                         var remoteClients = cloudSvc.GetAllClients();

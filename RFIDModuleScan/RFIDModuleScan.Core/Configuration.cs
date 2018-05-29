@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RFIDModuleScan.Core.Data;
 using RFIDModuleScan.Core.Enums;
+using RFIDModuleScan.Core.Helpers;
 
 namespace RFIDModuleScan.Core
 {
@@ -111,6 +112,14 @@ namespace RFIDModuleScan.Core
                 else
                 {
                     result = setting.Value;
+                    try
+                    {
+                        result = EncryptionHelper.Decrypt(setting.Value);
+                    }
+                    catch (Exception exc)
+                    {
+                        result = "";
+                    }
                 }
                 return result;
             }
@@ -131,6 +140,15 @@ namespace RFIDModuleScan.Core
                 else
                 {
                     result = setting.Value;
+                    try
+                    {
+                        result = EncryptionHelper.Decrypt(setting.Value);
+                    }
+                    catch(Exception exc)
+                    {
+                        result = "";
+                    }
+
                 }
                 return result;
             }

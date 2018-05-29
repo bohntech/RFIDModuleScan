@@ -84,9 +84,9 @@ namespace RFIDModuleScan.Core.Data
             StringBuilder sb = new StringBuilder();
 
             //write header
-            sb.AppendLine("Module ID,Module SN,Lat,Lon,GMT Date,GMT Time,Tag Count,Client,Farm,Field,Variety,Machine PIN,Operator,Gin ID,Producer ID,Local Time,Field Area (Sq m),Season Total,Moisture (%),Diameter (cm),Weight (kg),Drop Lat,Drop Lon,Field Total,Incremental Area (Sq m),Local Date,Comment");
+            sb.AppendLine("Module ID,Module SN,Lat,Lon,GMT Date,GMT Time,Tag Count,Client,Farm,Field,Variety,Machine PIN,Operator,Gin ID,Producer ID,Local Time,Field Area (Sq m),Season Total,Moisture (%),Diameter (cm),Weight (kg),Drop Lat,Drop Lon,Field Total,Incremental Area (Sq m),Local Date,Comment,Load");
 
-            string templateLine = "{ModuleID},{SerialNumber},{Latitude},{Longitude},{GMTDate},{GMTTime},1,{Client},{Farm},{Field},,{TabletID},{Operator},{GinID},{ProducerID},{LocalTime},,,,,,{DropLat},{DropLon},{FieldTotal},,{LocalDate},{Comments}";
+            string templateLine = "{ModuleID},{SerialNumber},{Latitude},{Longitude},{GMTDate},{GMTTime},1,{Client},{Farm},{Field},,{TabletID},{Operator},{GinID},{ProducerID},{LocalTime},,,,,,{DropLat},{DropLon},{FieldTotal},,{LocalDate},{Comments},{Load}";
 
             var allModuleScans = dataService.GetAll<ModuleScan>().ToList();
             var allLoads = dataService.GetAll<Load>().ToList();
@@ -123,6 +123,8 @@ namespace RFIDModuleScan.Core.Data
                         dataString = dataString.Replace("{ProducerID}", EscapeForCSV(scan.Grower));
                         dataString = dataString.Replace("{FieldTotal}", scanCount.ToString());
                         dataString = dataString.Replace("{Comments}", EscapeForCSV(load.Notes));
+                        dataString = dataString.Replace("{Load}", EscapeForCSV(load.LoadNumber.ToString()));
+                        dataString = dataString.Replace("{LocalDate}", module.TimeStamp.ToString("yyyy/MM/dd"));
                         dataString = dataString.Replace("{LocalDate}", module.TimeStamp.ToString("yyyy/MM/dd"));
                         sb.AppendLine(dataString);
                         scanCount++;

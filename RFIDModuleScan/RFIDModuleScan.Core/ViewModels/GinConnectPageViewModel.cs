@@ -51,16 +51,10 @@ namespace RFIDModuleScan.Core.ViewModels
         {
             try
             {
-                using (var stream = new MemoryStream())
-                {
-                    var writer = new StreamWriter(stream);
-                    writer.Write(codeText);
-                    writer.Flush();
-                    stream.Position = 0;
-                    DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(GinConnectionModel));
-                    GinConnectionModel m = (GinConnectionModel)ser.ReadObject(stream);
-                    return m;
-                }
+                var plainTextCode = RFIDModuleScan.Core.Helpers.EncryptionHelper.Decrypt(codeText);
+                GinConnectionModel m = Newtonsoft.Json.JsonConvert.DeserializeObject<GinConnectionModel>(plainTextCode);
+                return m;                    
+                
             }
             catch(Exception exc)
             {
@@ -85,8 +79,8 @@ namespace RFIDModuleScan.Core.ViewModels
 
             if (m != null)
             {
-                _dataService.SaveSetting(AppSettingID.GinDBKey, m.Key);
-                _dataService.SaveSetting(AppSettingID.GinDBUrl, m.Url);
+                _dataService.SaveSetting(AppSettingID.GinDBKey, EncryptionHelper.Encrypt(m.Key));
+                _dataService.SaveSetting(AppSettingID.GinDBUrl, EncryptionHelper.Encrypt(m.Url));
                 _dataService.SaveSetting(AppSettingID.GinEmail, m.Email);
                 _dataService.SaveSetting(AppSettingID.GinName, m.Gin);
             }

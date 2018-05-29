@@ -74,13 +74,12 @@ namespace RFIDModuleScan.Droid.DocumentDb
 
         public static void Initialize(string endpoint, string authKey)
         {
-
             var policy = new ConnectionPolicy
             {
                 //ConnectionMode = ConnectionMode.Direct,
                 //ConnectionProtocol = Protocol.Https,
                 EnableEndpointDiscovery = false
-            };
+            };          
 
             client = new DocumentClient(new Uri(endpoint), authKey,
                 policy, ConsistencyLevel.Eventual);           

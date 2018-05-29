@@ -26,6 +26,8 @@ namespace RFIDModuleScan.Droid
 		
 		public static void UpdateIdValues()
 		{
+			global::PCLCrypto.Resource.String.ApplicationName = global::RFIDModuleScan.Droid.Resource.String.ApplicationName;
+			global::PCLCrypto.Resource.String.Hello = global::RFIDModuleScan.Droid.Resource.String.Hello;
 			global::Xamarin.Forms.Platform.Android.Resource.Attribute.actionBarSize = global::RFIDModuleScan.Droid.Resource.Attribute.actionBarSize;
 			global::XLabs.Forms.Droid.Resource.Animation.abc_fade_in = global::RFIDModuleScan.Droid.Resource.Animation.abc_fade_in;
 			global::XLabs.Forms.Droid.Resource.Animation.abc_fade_out = global::RFIDModuleScan.Droid.Resource.Animation.abc_fade_out;
