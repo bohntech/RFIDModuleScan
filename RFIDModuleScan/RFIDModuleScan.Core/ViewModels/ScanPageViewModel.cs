@@ -851,6 +851,10 @@ namespace RFIDModuleScan.Core.ViewModels
             {
                 _dataService.SyncRemoteLists(); //sync client/farm/field lists
             }
+            else
+            {
+                _dataService.CleanUpLists(); //clean up client/farms/fields no longer used or referenced on a scan
+            }
            
                                
             HasFarmError = false;

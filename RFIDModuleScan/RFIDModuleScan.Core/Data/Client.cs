@@ -9,18 +9,18 @@ using Newtonsoft.Json;
 
 namespace RFIDModuleScan.Core.Data
 {
-    public class Client :  IListEntity
+    public class Client : IListEntity
     {
         [PrimaryKey]
         [JsonProperty(PropertyName = "id")]
         public Guid ID { get; set; }
 
-        [JsonIgnore]        
+        [JsonIgnore]
         public Guid? PreviousID { get; set; }
 
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
-        
+
         [JsonProperty(PropertyName = "entitytype")]
         public string EntityType { get; set; }
 
@@ -44,6 +44,13 @@ namespace RFIDModuleScan.Core.Data
             {
                 return Name.Trim().ToLower();
             }
+        }
+
+        public void CopyValues(object srcObject)
+        {
+            Client src = (Client)srcObject;
+            ID = src.ID;
+            Name = src.Name;
         }
 
         public string CompareKey

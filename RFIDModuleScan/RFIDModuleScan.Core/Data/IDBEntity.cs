@@ -24,5 +24,7 @@ namespace RFIDModuleScan.Core.Data
         Guid? PreviousID { get; set; }
 
         string CompareKey { get; }
+
+        void CopyValues(object newObject);
     }
 }

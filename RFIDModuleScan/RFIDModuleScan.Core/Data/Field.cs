@@ -53,6 +53,14 @@ namespace RFIDModuleScan.Core.Data
             return "";
         }
 
+        public void CopyValues(object srcObject)
+        {
+            Field src = (Field)srcObject;
+            ID = src.ID;
+            Name = src.Name;
+            FarmId = src.FarmId;
+        }
+
         public string CompareKey
         {
             get

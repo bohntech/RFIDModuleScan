@@ -41,5 +41,6 @@ namespace RFIDModuleScan.Core.Data
 
         void SyncRemoteLists();
         void CleanUpLists();
+        void CleanUpListsKeepUnusedRemoteItems(List<Client> remoteClients, List<Farm> remoteFarms, List<Field> remoteFields);
     }
 }

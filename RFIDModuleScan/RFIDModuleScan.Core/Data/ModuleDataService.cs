@@ -248,24 +248,26 @@ namespace RFIDModuleScan.Core.Data
             {                
                     foreach (var localItem in localList.Where(x => x.ID == remoteItem.ID))
                     {
-                        localItem.Source = "Cloud";
-                        localItem.Name = remoteItem.Name;
+                        localItem.Source = "Cloud";                        
+                        localItem.CopyValues(remoteItem);
                     }               
             }
 
             foreach (var remoteItem in remoteList)
             {
-                //update local items that are also in cloud
+                //update local items that are also in cloud that match on compare_key - ignore items with matching id as they should have been updated in first loop
                 if (localList.Any(x => x.CompareKey == remoteItem.CompareKey))
                 {
-                    foreach (var localItem in localList)
+                    foreach (var localItem in localList.Where(x => x.CompareKey == remoteItem.CompareKey))
                     {
-                        if (localItem.CompareKey == remoteItem.CompareKey)
+                        localItem.Source = "Cloud";
+
+                        //if id's are different save copy of local item ID in previous ID to aid in updating field scans with new names
+                        if (localItem.ID.ToString() != remoteItem.ID.ToString()) 
                         {
-                            localItem.Source = "Cloud";
                             localItem.PreviousID = localItem.ID;  //save a copy of the old id this helps us update names on field scans
-                            localItem.ID = remoteItem.ID;
                         }
+                        localItem.CopyValues(remoteItem);
                     }
                 }
                 else  //remote item isn't in local list so add
@@ -292,21 +294,27 @@ namespace RFIDModuleScan.Core.Data
             return updatedList;
         }
 
+        private void CleanUpClientList(List<Client> remoteList)
+        {
+            List<Client> clients = GetAll<Client>().ToList();
+            List<Client> clientsToDelete = new List<Client>();
+            List<FieldScan> scans = GetAll<FieldScan>().ToList();
+            foreach(var client in clients.Where(c => !remoteList.Any(r => r.ID == c.ID) && !scans.Any(s => s.GrowerID == c.ID.ToString())))
+            {
+                clientsToDelete.Add(client);
+            }            
+
+            
+        }
+
         private void populateFarmClients(List<Client> clients, List<Farm> farms)
         {
             foreach(var farm in farms)
             {
-                var client = clients.SingleOrDefault(x => x.ID.ToString() == farm.ClientId);
-
-                if (client != null)
-                {
-                    farm.Client = new Client();
-                    farm.Client.Source = client.Source;
-                    farm.Client.Name = client.Name;
-                    farm.Client.ID = client.ID;                    
-                }
+                farm.Client = clients.SingleOrDefault(x => x.ID.ToString() == farm.ClientId);
             }
         }
+                
 
         private void populateFieldFarms(List<Farm> farms, List<Field> fields)
         {
@@ -385,9 +393,7 @@ namespace RFIDModuleScan.Core.Data
                 }                
             }
             InsertAll<Client>(newClients);            
-        }
-
-      
+        }      
 
         private void updateFieldScans()
         {
@@ -492,6 +498,8 @@ namespace RFIDModuleScan.Core.Data
                         var farmsRemoved = new List<Farm>();
                         var clientsRemoved = new List<Client>();
 
+                        var updatedClientList = MergeLists<Client>(remoteClients, localClients, clientsRemoved);
+                        var updatedFarmList = MergeLists<Farm>(remoteFarms, localFarms, farmsRemoved);
                         var updatedFieldList = MergeLists<Field>(remoteFields, localFields, fieldsRemoved);
 
                         //clear local lists
@@ -502,16 +510,14 @@ namespace RFIDModuleScan.Core.Data
                             database.Execute("DELETE FROM Field");
                         }
 
-                        insertFieldsAndParentsLocal(updatedFieldList);
-
-                        var updatedFarmList = MergeLists<Farm>(remoteFarms, localFarms, farmsRemoved);
-                        insertFarmsAndParentsLocal(updatedFarmList);
-
-                        var updatedClientList = MergeLists<Client>(remoteClients, localClients, clientsRemoved);
+                        insertFieldsAndParentsLocal(updatedFieldList);                        
+                        insertFarmsAndParentsLocal(updatedFarmList);                        
                         insertClientsLocal(updatedClientList);
-
+                                                
                         //refetch lists and update scans
                         updateFieldScans();
+
+                        CleanUpListsKeepUnusedRemoteItems(remoteClients, remoteFarms, remoteFields);
                     }
                 }
             }
@@ -559,6 +565,38 @@ namespace RFIDModuleScan.Core.Data
                 if (!fieldScans.Any(s => s.GrowerID == client.ID.ToString()))
                 {
                     database.Delete<Client>(client.ID);
+                }
+            }
+        }
+
+        public void CleanUpListsKeepUnusedRemoteItems(List<Client> remoteClients, List<Farm> remoteFarms, List<Field> remoteFields)
+        {
+            var fieldScans = GetAll<FieldScan>().ToList();
+            var clients = GetAll<Client>().ToList();
+            var farms = GetAll<Farm>().ToList();
+            var fields = GetAll<Field>().ToList();
+
+            foreach (var field in fields)
+            {
+                if (!fieldScans.Any(s => s.FieldID == field.ID.ToString()) && !remoteFields.Any(s => s.ID == field.ID))
+                {
+                    database.Delete<Field>(field.ID);
+                }
+            }
+
+            foreach (var farm in farms)
+            {
+                if (!fieldScans.Any(s => s.FarmID == farm.ID.ToString()) && !remoteFarms.Any(s => s.ID == farm.ID))
+                {
+                    database.Delete<Farm>(farm.ID);
+                }
+            }
+
+            foreach (var client in clients)
+            {
+                if (!fieldScans.Any(s => s.GrowerID == client.ID.ToString()) && !remoteClients.Any(s => s.ID == client.ID))
+                {
+                    database.Delete<Client>(client.ID);                    
                 }
             }
         }
