@@ -510,6 +510,34 @@ namespace RFIDModuleScan.Core.Data
                             database.Execute("DELETE FROM Field");
                         }
 
+                        //if a parent id changed update related records
+                        foreach(var field in updatedFieldList)
+                        {
+                            if (!updatedFarmList.Any(x => x.ID.ToString() == field.FarmId)) //this field's farm ID isn't in list - this happens when parent farm record was updated with a new ID from gin db
+                            {
+                                var matchingFarm = updatedFarmList.SingleOrDefault(x => x.PreviousID.HasValue && x.PreviousID.Value.ToString() == field.FarmId);
+                                
+                                if (matchingFarm != null)
+                                {
+                                    field.FarmId = matchingFarm.ID.ToString();
+                                    field.Farm = matchingFarm;                                    
+                                }
+                            }
+                        }
+
+                        foreach(var farm in updatedFarmList)
+                        {
+                            if (!updatedClientList.Any(x => x.ID.ToString() == farm.ClientId))
+                            {
+                                var matchingClient = updatedClientList.SingleOrDefault(x => x.PreviousID.HasValue && x.PreviousID.Value.ToString() == farm.ClientId);
+                                if (matchingClient != null)
+                                {
+                                    farm.ClientId = matchingClient.ID.ToString();
+                                    farm.Client = matchingClient;
+                                }
+                            }
+                        }
+
                         insertFieldsAndParentsLocal(updatedFieldList);                        
                         insertFarmsAndParentsLocal(updatedFarmList);                        
                         insertClientsLocal(updatedClientList);
