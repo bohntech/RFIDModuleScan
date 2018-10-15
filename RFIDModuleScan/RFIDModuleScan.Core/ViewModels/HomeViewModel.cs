@@ -11,6 +11,7 @@ using RFIDModuleScan.Core.Scanners;
 using RFIDModuleScan.Core.Data;
 using RFIDModuleScan.Core.Services;
 using RFIDModuleScan.Core.Enums;
+using RFIDModuleScan.Core.Helpers;
 
 namespace RFIDModuleScan.Core.ViewModels
 {
@@ -114,12 +115,17 @@ namespace RFIDModuleScan.Core.ViewModels
                             }
                         }
                     }
-                }                
-                
-                if (!Configuration.ConnectedToGin)
-                {
-                    _dataService.CleanUpLists(); //clean up unused client/farm/field records if not in gin/mode
                 }
+
+                if (Configuration.ConnectedToGin)
+                {
+                    BusyMessage = "Syncing lists";
+                    _dataService.SyncRemoteLists(); //sync client/farm/field lists                    
+                }
+                else
+                {
+                    _dataService.CleanUpLists(); //clean up client/farms/fields no longer used or referenced on a scan
+                }               
 
                 IsBusy = false;
             });

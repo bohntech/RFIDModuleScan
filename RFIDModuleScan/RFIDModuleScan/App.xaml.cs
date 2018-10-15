@@ -46,6 +46,7 @@ namespace RFIDModuleScan
             var startPage = new NavigationPage(new HomePage());            
             startPage.Popped += StartPage_Popped;
                         
+                        
             startPage.BarBackgroundColor = Color.FromHex("#404040");
             startPage.BarTextColor = Color.FromHex("#FFFFFF");
             nav.Initialize(startPage);
@@ -71,6 +72,7 @@ namespace RFIDModuleScan
             });
         }
 
+        
         protected override void OnSleep()
         {
             // Handle when your app sleeps           

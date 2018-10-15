@@ -9,6 +9,7 @@ using Xamarin.Forms;
 using RFIDModuleScan.Core.Models;
 using System.Linq.Expressions;
 using RFIDModuleScan.Core.Services;
+using RFIDModuleScan.Core.Helpers;
 
 namespace RFIDModuleScan.Core.Data
 {
@@ -459,7 +460,7 @@ namespace RFIDModuleScan.Core.Data
             try
             {
                 //sync if connected and has endpoint and key
-                if (Plugin.Connectivity.CrossConnectivity.Current.IsConnected)
+                if (Plugin.Connectivity.CrossConnectivity.Current.IsConnected && CacheTimingHelper.AllowSync)
                 {
 
                     var endPointSetting = this.GetSetting(AppSettingID.GinDBUrl);
@@ -547,6 +548,7 @@ namespace RFIDModuleScan.Core.Data
 
                         CleanUpListsKeepUnusedRemoteItems(remoteClients, remoteFarms, remoteFields);
                     }
+                    CacheTimingHelper.RecordSyncTime();
                 }
             }
             catch (Exception exc)

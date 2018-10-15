@@ -76,8 +76,8 @@ namespace RFIDModuleScan.Droid.DocumentDb
         {
             var policy = new ConnectionPolicy
             {
-                //ConnectionMode = ConnectionMode.Direct,
-                //ConnectionProtocol = Protocol.Https,
+                ConnectionMode = ConnectionMode.Direct,
+                ConnectionProtocol = Protocol.Https,
                 EnableEndpointDiscovery = false
             };          
 

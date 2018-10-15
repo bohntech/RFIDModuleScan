@@ -44,6 +44,7 @@
     <Compile Include="Data\Field.cs" />
     <Compile Include="Data\FieldScan.cs" />
     <Compile Include="Data\FileBuilder.cs" />
+    <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Helpers\EncryptionHelper.cs" />
     <Compile Include="Helpers\NetworkHelper.cs" />
     <Compile Include="Messages\OpenScanEditFormMessage.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="Services\IConnectedService.cs" />
     <Compile Include="Services\IEmailService.cs" />
     <Compile Include="Services\IFileService.cs" />
+    <Compile Include="Services\IHelperService.cs" />
     <Compile Include="Services\IVibrateService.cs" />
     <Compile Include="ViewModels\AddClientViewModel.cs" />
     <Compile Include="ViewModels\AddFarmViewModel.cs" />

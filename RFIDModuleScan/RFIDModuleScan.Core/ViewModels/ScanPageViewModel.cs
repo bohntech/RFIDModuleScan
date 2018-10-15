@@ -846,16 +846,15 @@ namespace RFIDModuleScan.Core.ViewModels
             IsBusy = true;
             
             BusyMessage = "Loading...";
-            
+
             if (Configuration.ConnectedToGin)
             {
-                _dataService.SyncRemoteLists(); //sync client/farm/field lists
+                _dataService.SyncRemoteLists(); //sync client/farm/field lists              
             }
             else
             {
                 _dataService.CleanUpLists(); //clean up client/farms/fields no longer used or referenced on a scan
-            }
-           
+            }           
                                
             HasFarmError = false;
             HasGrowerError = false;
@@ -1151,7 +1150,8 @@ namespace RFIDModuleScan.Core.ViewModels
                 _fieldScanID = _dataService.Save(scan);
                                 
                 persistScanCounts();
-                
+                                
+
                 //reload local lists
                 initLists();
 

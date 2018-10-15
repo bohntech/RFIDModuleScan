@@ -17,6 +17,7 @@ using System.Threading;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Helpers;
 using RFIDModuleScan.Core.Messages;
+using RFIDModuleScan.Core.Helpers;
 
 namespace RFIDModuleScan.Core.ViewModels
 {

@@ -243,3 +243,4 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/RFIDModuleScan/RFIDModuleScan.Droid/RFIDModuleScan.Droid.csproj.bak
