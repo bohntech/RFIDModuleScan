@@ -9,7 +9,7 @@ using Android.OS;
 
 namespace RFIDModuleScan.Droid
 {
-    [Activity(Label = "RFID Module Scan", Icon = "@drawable/icon",MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, Theme = "@style/ModuleTheme")]
+    [Activity(Label = "RFID Module Scan", Icon = "@drawable/icon",MainLauncher = true, HardwareAccelerated = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, Theme = "@style/ModuleTheme")]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsApplicationActivity
     {
         protected override void OnCreate(Bundle bundle)
