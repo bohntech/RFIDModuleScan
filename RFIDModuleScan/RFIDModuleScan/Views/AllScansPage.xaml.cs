@@ -14,7 +14,8 @@ using RFIDModuleScan.UserControls;
 using Xamarin.Forms.Xaml;
 
 namespace RFIDModuleScan.Views
-{   
+{
+    
     public partial class AllScansPage : ContentPage, IDisposable
     {
         private INavigationService _navService;
@@ -23,7 +24,7 @@ namespace RFIDModuleScan.Views
 
         private void scansLoaded(AllScansLoadComplete msg)
         {
-            StackLayout scanItemLayout = new StackLayout();
+            /*StackLayout scanItemLayout = new StackLayout();
             scanItemLayout.Spacing = 2.0;
             scanItemLayout.BackgroundColor = Color.FromHex("#A0A0A0");
 
@@ -48,6 +49,13 @@ namespace RFIDModuleScan.Views
             {
                 scrollLayout.Content = scanItemLayout;
                 scrollLayout.IsVisible = true;
+                busyLayout.IsVisible = false;
+                scrollLayout.ForceLayout();
+            });*/
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                //listView.ItemsSource = vm.ScanItems;
                 busyLayout.IsVisible = false;
             });
         }
@@ -94,7 +102,7 @@ namespace RFIDModuleScan.Views
             if (vm != null)
             {
                 busyLayout.IsVisible = true;
-                scrollLayout.IsVisible = false;
+                //scrollLayout.IsVisible = false;
                 Device.StartTimer(new TimeSpan(0, 0, 0, 0, 250), onRefresh);               
             }
         }
@@ -106,6 +114,13 @@ namespace RFIDModuleScan.Views
                 vm.Initialize();
             });           
             return false;
+        }
+
+        private void ListView_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            ScanItemViewModel tappedItem = (ScanItemViewModel)((ListView)sender).SelectedItem;
+            vm.OpenScanPage.Execute(tappedItem.FieldScanID);
+            //Navigation.PushModalAsync(new MarketItemPage(tappedPost.Id, tappedPost.UserId));
         }
     }
 }

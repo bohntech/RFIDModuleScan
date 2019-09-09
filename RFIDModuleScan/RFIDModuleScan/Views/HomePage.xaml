@@ -11,7 +11,9 @@
                     <Button x:Name="btnContinueScan" Text="Continue Load Scan" Command="{Binding NavigateToAllScansPage}" Style="{StaticResource mainMenuButton}" />
                     <Button x:Name="btnNewScan" Text="New Load Scan"  Command="{Binding NavigateToScanPage}" Style="{StaticResource mainMenuButton}" />
                     <Button x:Name="btnNewDropScan" Text="Module Inventory List"  Command="{Binding NavigateToDropScanPage}" Style="{StaticResource mainMenuButton}" />
-                    <Button x:Name="btnSettings" Text="Settings" Command="{Binding NavigateToSettingsPage}" Style="{StaticResource mainMenuButton}" />
+                    <Button x:Name="btnOwnership" Text="Ownership Lookup" Command="{Binding NavigateToModuleOwnershipLookupPage}" Style="{StaticResource mainMenuButton}" />
+                    <Button x:Name="btnSync" Text="Sync Lists" Command="{Binding SyncCommand}" Style="{StaticResource mainMenuButton}" IsVisible="{Binding ConnectedToGin}" />
+                    <Button x:Name="btnSettings" Text="Settings" Command="{Binding NavigateToSettingsPage}" Style="{StaticResource mainMenuButton}" />                    
                     <Button x:Name="btnTransmitAll" Text="Backup Data" Style="{StaticResource mainMenuButton}" Command="{Binding TransmitAllCommand}" IsVisible="{Binding HasData}" />
                     <Button x:Name="btnClearData" Text="Clear Data" Style="{StaticResource mainMenuButton}" Clicked="btnClearData_Clicked" IsVisible="{Binding HasData}"/>
                     <Button Text="About" Style="{StaticResource mainMenuButton}" Command="{Binding AboutCommand}"  />

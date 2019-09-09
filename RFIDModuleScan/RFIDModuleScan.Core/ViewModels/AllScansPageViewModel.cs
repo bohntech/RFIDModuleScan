@@ -18,6 +18,7 @@ using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Helpers;
 using RFIDModuleScan.Core.Messages;
 using RFIDModuleScan.Core.Helpers;
+using Xamarin.Forms;
 
 namespace RFIDModuleScan.Core.ViewModels
 {
@@ -26,7 +27,18 @@ namespace RFIDModuleScan.Core.ViewModels
         private INavigationService _navService;
         private IModuleDataService _dataService;
 
-        public ObservableCollection<ScanItemViewModel> ScanItems { get; private set; }
+        private RangeObservableCollection<ScanItemViewModel> _scanItems = null;
+        public RangeObservableCollection<ScanItemViewModel> ScanItems
+        {
+            get
+            {
+                return _scanItems;
+            }
+            private set
+            {
+                Set<RangeObservableCollection<ScanItemViewModel>>(() => ScanItems, ref _scanItems, value);
+            }
+        }
 
         private bool _isBusy = false;
         public bool IsBusy
@@ -61,7 +73,7 @@ namespace RFIDModuleScan.Core.ViewModels
             _dataService = dataService;            
             OpenScanPage = new RelayCommand<Guid>(this.ExecutOpenScanPage);
 
-            ScanItems = new ObservableCollection<ScanItemViewModel>();
+            
             BusyMessage = "Loading...";
         }
 
@@ -70,7 +82,7 @@ namespace RFIDModuleScan.Core.ViewModels
 
             if (Configuration.ConnectedToGin)
             {
-                _dataService.SyncRemoteLists(); //sync client/farm/field lists
+                //_dataService.SyncRemoteLists(); //sync client/farm/field lists
             }
             else
             {
@@ -79,8 +91,9 @@ namespace RFIDModuleScan.Core.ViewModels
 
             var items = _dataService.Find<FieldScan, DateTime>(x => x.ListTypeID == (int)ListTypeEnum.Staging, s => s.Created);
 
-            ScanItems.Clear();
-
+            //ScanItems.Clear();
+            //ScanItems = new ObservableCollection<ScanItemViewModel>();
+            List<ScanItemViewModel> scans = new List<ScanItemViewModel>();
             DateTime lastScanTime = DateTime.Now;
             string TransmitMsg = "";
             DateTime transmitTime = DateTime.Now;
@@ -107,8 +120,15 @@ namespace RFIDModuleScan.Core.ViewModels
                     FieldScanID = item.ID
                 };
 
-                ScanItems.Add(vm);
+                scans.Add(vm);
             }
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                ScanItems = new RangeObservableCollection<ScanItemViewModel>();
+                foreach (var s in scans) ScanItems.AddWithoutNotify(s);
+                ScanItems.ApplyUpdates();
+            });
 
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<AllScansLoadComplete>(new AllScansLoadComplete());
 

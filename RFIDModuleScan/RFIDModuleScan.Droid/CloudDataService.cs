@@ -49,5 +49,11 @@ namespace RFIDModuleScan.Droid
         {
             return DocumentDBContext.GetAllItems<Field>(p => p.EntityType == "FIELD").OrderBy(c => c.Name).ToList();
         }
+
+        public List<ModuleOwnership> GetModuleOwnershipChanges(DateTime lastSyncTime)
+        {
+            return DocumentDBContext.GetAllItems<ModuleOwnership>(m => m.EntityType == "MODULE_OWNERSHIP" && (m.Created > lastSyncTime ||
+            (m.Updated.HasValue && m.Updated > lastSyncTime))).ToList();
+        }
     }
 }

@@ -31,7 +31,8 @@
 
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
-
+                        <RowDefinition Height="Auto" />
+                        
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -62,7 +63,15 @@
                     </Picker>
 
 
-                    <Button x:Name="btnSaveSettings" Grid.Row="6" Grid.Column="1" Text="Save" Style="{StaticResource primaryButton}"  Command="{Binding SaveSettings}" />
+                    <Label Text="Load Tag Prefix/Suffix" Grid.Row="5" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Fill" HorizontalTextAlignment="End" TextColor="#333333" ></Label>
+                    <Entry Placeholder="Enter a number"   Grid.Row="5" Grid.Column="1" Keyboard="Numeric"                                 
+                               Text="{Binding Path=ScanSettings.LoadTagPrefix, Mode=TwoWay}"                                
+                               />
+
+
+
+
+                    <Button x:Name="btnSaveSettings" Grid.Row="7" Grid.Column="1" Text="Save" Style="{StaticResource primaryButton}"  Command="{Binding SaveSettings}" />
                 </Grid>
             </StackLayout>
 

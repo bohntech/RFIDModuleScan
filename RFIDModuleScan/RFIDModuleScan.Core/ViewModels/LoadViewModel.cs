@@ -105,6 +105,21 @@ namespace RFIDModuleScan.Core.ViewModels
             }
         }
 
+        private string _ginTicketLoadNumber = "";
+        public string GinTicketLoadNumber
+        {
+            get
+            {
+                return _ginTicketLoadNumber;
+            }
+            set
+            {
+                Set<string>(() => GinTicketLoadNumber, ref _ginTicketLoadNumber, value);
+            }
+        }
+
+        public bool IsGinLoadFocused { get; set; }
+
         public LoadViewModel()
         {
             Modules = new RangeObservableCollection<ModuleScanViewModel>();

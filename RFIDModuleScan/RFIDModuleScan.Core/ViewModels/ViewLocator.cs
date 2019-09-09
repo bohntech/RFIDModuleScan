@@ -20,5 +20,7 @@ namespace RFIDModuleScan.Core.ViewModels
         public const string OpticalFindPage = "OpticalFindPage";
 
         public const string GinConnectPage = "GinConnectPage";
+        public const string OpticalOwnershipLookupPage = "OpticalOwnershipLookupPage";
+        public const string OwnershipLookupPage = "OwnershipLookupPage";
     }
 }

@@ -9,5 +9,16 @@ namespace RFIDModuleScan.Core.Messages
 {
     public class LoadsChangedMessage
     {
+        public bool Scroll { get; set; }
+
+        public LoadsChangedMessage()
+        {
+            Scroll = true;
+        }
+    }
+
+    public class LoadTagScannedMessage
+    {
+        public string GinTagLoadNumber { get; set; }
     }
 }

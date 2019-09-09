@@ -69,6 +69,25 @@ namespace RFIDModuleScan.Core
             }
         }
 
+        public static string LoadTagPrefix
+        {
+            get
+            {
+                ModuleDataService db = new ModuleDataService();
+                var setting = db.GetSetting(AppSettingID.LoadTagPrefix);
+                var result = "B";
+                if (setting == null)
+                {
+                    db.SaveSetting(AppSettingID.LoadTagPrefix, result);
+                }
+                else
+                {
+                    result = setting.Value;
+                }
+                return result;
+            }
+        }
+
         public static string GinName
         {
             get

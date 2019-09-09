@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.438
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFIDModuleScan.Droid", "RFIDModuleScan\RFIDModuleScan.Droid\RFIDModuleScan.Droid.csproj", "{23C856F6-A3B8-4946-BDCC-23E29433D188}"
 EndProject
@@ -208,5 +208,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {24565DF6-4CD4-4D16-AA2F-374211A2D91F}
 	EndGlobalSection
 EndGlobal

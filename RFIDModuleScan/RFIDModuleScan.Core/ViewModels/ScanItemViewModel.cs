@@ -85,6 +85,20 @@ namespace RFIDModuleScan.Core.ViewModels
             set
             {
                 Set<DateTime>(() => LastScan, ref _lastScan, value);
+                LastScanMsg = _lastScan.ToString("MM/dd/yyyy hh:mm tt");
+            }
+        }
+
+        private string _lastScanMsg;
+        public string LastScanMsg
+        {
+            get
+            {
+                return _lastScanMsg;
+            }
+            set
+            {
+                Set<string>(() => LastScanMsg, ref _lastScanMsg, value);
             }
         }
 

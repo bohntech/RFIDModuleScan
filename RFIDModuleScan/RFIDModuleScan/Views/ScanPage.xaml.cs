@@ -50,7 +50,7 @@ namespace RFIDModuleScan.Views
 
                 vm = new ScanPageViewModel(_navService, SimpleIoc.Default.GetInstance<IModuleDataService>(), id);
 
-                //GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<LoadsChangedMessage>(this, HandleLoadsChangedMessage);
+                GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<LoadsChangedMessage>(this, HandleLoadsChangedMessage);
                 GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<OpenScanEditFormMessage>(this, HandleOpenScanEditMessage);
 
                 this.BindingContext = vm;

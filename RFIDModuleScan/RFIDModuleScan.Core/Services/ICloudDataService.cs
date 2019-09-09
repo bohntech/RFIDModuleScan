@@ -13,5 +13,6 @@ namespace RFIDModuleScan.Core.Services
         List<Client> GetAllClients();
         List<Farm> GetAllFarms();
         List<Field> GetAllFields();
+        List<ModuleOwnership> GetModuleOwnershipChanges(DateTime lastSyncTime);
     }
 }

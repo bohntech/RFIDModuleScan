@@ -22,10 +22,14 @@ namespace RFIDModuleScan.Core.Data
         IList<TObject> Find<TObject, U>(Expression<Func<TObject, bool>> expression, Expression<Func<TObject, U>> sortExpr = null)
             where TObject : IDBEntity, new();
 
+        IList<TObject> FindObjects<TObject, U>(Expression<Func<TObject, bool>> expression, Expression<Func<TObject, U>> sortExpr = null) where TObject : new();
+
         int InsertAll<TObject>(IEnumerable<TObject> objectsToAdd) where TObject : IDBEntity, new();
 
-        IList<TObject> GetAll<TObject>() where TObject : IDBEntity, new();
+        int InsertAllObjects<TObject>(IEnumerable<TObject> objectsToAdd) where TObject : new();
 
+        IList<TObject> GetAll<TObject>() where TObject : IDBEntity, new();
+        IList<TObject> GetAllObjects<TObject>() where TObject : new();
         void ClearData();
         void DeleteScanAndRelatedData(Guid fieldScanID);
         void UpdateLoadNumber(Guid LoadID, int LoadNumber);
@@ -39,8 +43,12 @@ namespace RFIDModuleScan.Core.Data
         void AddFarm(string clientName, string farmName);
         void AddField(string clientName, string farmName, string fieldName);
 
-        void SyncRemoteLists();
+        void SyncRemoteLists(bool manualSync);
         void CleanUpLists();
         void CleanUpListsKeepUnusedRemoteItems(List<Client> remoteClients, List<Farm> remoteFarms, List<Field> remoteFields);
+
+        void SyncOwnership();
+        string UpdateOwnership(ModuleOwnership objectToSave);
+
     }
 }

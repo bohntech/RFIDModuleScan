@@ -7,12 +7,61 @@
     <ContentPage.Resources>
         <ResourceDictionary>          
             <converter:NotConverter x:Key="NotConverter"/>
+            <converter:EmptyStringInvisibleConverter x:Key="EmptyStringInvisibleConverter"/>
         </ResourceDictionary>
     </ContentPage.Resources>
     <AbsoluteLayout>
-        <ScrollView x:Name="scrollLayout" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" Padding="0">
+       <!-- <ScrollView x:Name="scrollLayout" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" Padding="0">
             
-        </ScrollView>
-        <usercontrols:BusyIndicatorView x:Name="busyLayout" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BusyMessage="{Binding BusyMessage}" IsVisible="{Binding IsBusy}" />
+        </ScrollView> -->
+
+        <usercontrols:CustomListView x:Name="listView"   HasUnevenRows="True" ItemTapped="ListView_ItemTapped" ItemsSource="{Binding ScanItems}" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                    <Grid Padding="5,5,5,5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="0" Grid.Column="0" Text="Client:" FontAttributes="Bold" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Grower}"  />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Farm:" FontAttributes="Bold" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Farm}"  />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Field:" FontAttributes="Bold" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding Field}"  />
+
+                        <Label Grid.Row="0" Grid.Column="2" Text="Loads:" FontAttributes="Bold" />
+                        <Label Grid.Row="0" Grid.Column="3" Text="{Binding Loads}"  />
+
+                        <Label Grid.Row="1" Grid.Column="2" Text="Modules:" FontAttributes="Bold" />
+                        <Label Grid.Row="1" Grid.Column="3" Text="{Binding Modules}"  />
+
+                        <Label Grid.Row="2" Grid.Column="2" Text="Last Scan:" FontAttributes="Bold" />
+                        <Label Grid.Row="2" Grid.Column="3" Text="{Binding LastScanMsg}"  />
+
+                        <Label Grid.Row="3" Grid.Column="0" Text="SENT:" FontAttributes="Bold" TextColor="Green" IsVisible="{Binding TransmitMsg, Converter={StaticResource EmptyStringInvisibleConverter}}" />
+                        <Label Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding TransmitMsg}" TextColor="Green" IsVisible="{Binding TransmitMsg, Converter={StaticResource EmptyStringInvisibleConverter}}"  />
+
+                    </Grid>
+                    </ViewCell>
+                </DataTemplate>
+                
+
+            </ListView.ItemTemplate>
+        </usercontrols:CustomListView>
+        <usercontrols:BusyIndicatorView x:Name="busyLayout" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BusyMessage="{Binding BusyMessage}" />
     </AbsoluteLayout>
 </ContentPage>
+    

@@ -226,6 +226,7 @@ namespace RFIDModuleScan.Core.ViewModels
             ScanSettings.LastConnectedScannerID = Configuration.LastScannerID;
             ScanSettings.LastConnectedScannerName = Configuration.LastScannerDisplayName;
             ScanSettings.MaxModulesPerLoad = Configuration.MaxModulesPerLoad.ToString();
+            ScanSettings.LoadTagPrefix = Configuration.LoadTagPrefix;
             ScanSettings.TabletID = Configuration.TabletID;
 
             fetchGinSettings();
@@ -365,9 +366,6 @@ namespace RFIDModuleScan.Core.ViewModels
             get;
             private set;
         }
-        
-
-     
 
         private async void ExecuteRefreshList()
         {

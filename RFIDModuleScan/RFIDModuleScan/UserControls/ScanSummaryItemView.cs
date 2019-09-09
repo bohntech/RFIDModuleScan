@@ -1,4 +1,4 @@
-﻿//Licensed under MIT License see LICENSE.TXT in project root folder
+﻿  //Licensed under MIT License see LICENSE.TXT in project root folder
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -23,6 +23,8 @@ namespace RFIDModuleScan.Core.Data
 
         public static Guid Version = Guid.Parse("00000000-0000-0000-0000-000000000020");
 
+        public static Guid LoadTagPrefix = Guid.Parse("00000000-0000-0000-0000-000000000021");
+        public static Guid OwnershipSyncSettingKey = Guid.Parse("00000000-0000-0000-0000-000000000022");
     }
 
     public class AppSetting : IDBEntity

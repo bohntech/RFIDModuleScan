@@ -21,6 +21,8 @@ namespace RFIDModuleScan.UserControls
         StackLayout notesLayout = new StackLayout();
         Label notesLabel = new Label();
         Label notesTitleLabel = new Label();
+        Label ginTicketLoadNumberLabel = new Label();
+        Label ginTicketLoadNumberTitleLabel = new Label();
         StackLayout container = new StackLayout();
         WrapLayout moduleWrapper = new WrapLayout();
         LoadViewModel _vm = null;
@@ -40,6 +42,12 @@ namespace RFIDModuleScan.UserControls
             notesLabel.LineBreakMode = LineBreakMode.WordWrap;
             notesLayout.Children.Add(notesTitleLabel);
             notesLayout.Children.Add(notesLabel);
+
+            ginTicketLoadNumberTitleLabel.LineBreakMode = LineBreakMode.NoWrap;            
+            ginTicketLoadNumberTitleLabel.Text = "Gin Ticket Load #: ";
+            ginTicketLoadNumberTitleLabel.FontAttributes = FontAttributes.Bold;
+            notesLayout.Children.Add(ginTicketLoadNumberTitleLabel);
+            notesLayout.Children.Add(ginTicketLoadNumberLabel);
 
             buttonLayout.BackgroundColor = Color.FromHex("#CECECE");
             expandButton.Image = "downarrow.png";
@@ -78,7 +86,13 @@ namespace RFIDModuleScan.UserControls
             notesLayout.SetBinding(StackLayout.IsVisibleProperty, "IsOpen");
             notesLabel.SetBinding(Label.IsVisibleProperty, new Binding { Path = "Notes", Converter = new EmptyStringInvisibleConverter() });
             notesTitleLabel.SetBinding(Label.IsVisibleProperty, new Binding { Path = "Notes", Converter = new EmptyStringInvisibleConverter() });
-            notesLabel.SetBinding(Label.TextProperty, "Notes");         
+
+            ginTicketLoadNumberLabel.SetBinding(Label.IsVisibleProperty, new Binding { Path = "GinTicketLoadNumber", Converter = new EmptyStringInvisibleConverter() });
+            ginTicketLoadNumberTitleLabel.SetBinding(Label.IsVisibleProperty, new Binding { Path = "GinTicketLoadNumber", Converter = new EmptyStringInvisibleConverter() });
+            
+            notesLabel.SetBinding(Label.TextProperty, "Notes");
+            ginTicketLoadNumberLabel.SetBinding(Label.TextProperty, "GinTicketLoadNumber");
+
             expandButton.SetBinding(Button.ImageProperty, new Binding { Path = "IsOpen", Converter = new BoolToArrowImageConverter() });
             loadLabel.SetBinding(Label.TextProperty, new Binding { Path = "LoadNumber", Converter = new LoadNumberConverter() });            
             moduleCountLabel.SetBinding(Label.TextProperty, new Binding { Path = "ModuleCount", Converter = new ModuleCountToTextConverter() });

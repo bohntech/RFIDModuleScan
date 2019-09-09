@@ -60,8 +60,21 @@ namespace RFIDModuleScan.Core.ViewModels
             }
         }
 
-       
-
+        private string _loadTagPrefix = "B";
+        public string LoadTagPrefix
+        {
+            get
+            {
+                return _loadTagPrefix;
+            }
+            set
+            {
+                if (Set<string>(() => LoadTagPrefix, ref _loadTagPrefix, value))
+                {
+                    IsDirty = true;
+                }
+            }
+        }
 
         private int _selectedExportIndex = 0;
         public int SelectedExportIndex

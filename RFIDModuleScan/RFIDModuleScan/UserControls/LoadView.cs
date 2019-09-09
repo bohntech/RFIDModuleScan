@@ -19,6 +19,7 @@ namespace RFIDModuleScan.UserControls
         Label loadLabel = new Label();
         Label moduleCountLabel = new Label();
         Entry notesEntry = new Entry();
+        Entry ginLoadEntry = new Entry();
         StackLayout container = new StackLayout();
         WrapLayout moduleWrapper = new WrapLayout();
         LoadViewModel _vm = null;
@@ -36,6 +37,9 @@ namespace RFIDModuleScan.UserControls
             buttonLayout.RowSpacing = 0.0;
             notesEntry.HorizontalOptions = LayoutOptions.FillAndExpand;
             notesEntry.Placeholder = "Tap here to add notes...";
+
+            ginLoadEntry.HorizontalOptions = LayoutOptions.FillAndExpand;
+            ginLoadEntry.Placeholder = "Gin ticket load #...";
             
             buttonLayout.BackgroundColor = Color.FromHex("#CECECE");
             expandButton.Image = "downarrow.png";
@@ -65,6 +69,7 @@ namespace RFIDModuleScan.UserControls
             {
                 container.Children.Add(buttonLayout);
                 container.Children.Add(notesEntry);
+                container.Children.Add(ginLoadEntry);
             }
             
             container.Children.Add(moduleWrapper);
@@ -83,12 +88,17 @@ namespace RFIDModuleScan.UserControls
 
             notesEntry.SetBinding(Entry.IsVisibleProperty, "IsOpen");
             notesEntry.SetBinding(Entry.TextProperty, "Notes");
+            ginLoadEntry.SetBinding(Entry.TextProperty, "GinTicketLoadNumber");
+            ginLoadEntry.SetBinding(Entry.IsVisibleProperty, "IsOpen");
             expandButton.SetBinding(Button.ImageProperty, new Binding { Path = "IsOpen", Converter = new BoolToArrowImageConverter() });
             loadLabel.SetBinding(Label.TextProperty, new Binding { Path = "LoadNumber", Converter = new LoadNumberConverter() });
             moduleCountLabel.SetBinding(Label.TextProperty, new Binding { Path = "ModuleCount", Converter = new ModuleCountToTextConverter() });
             moduleWrapper.SetBinding(WrapLayout.IsVisibleProperty, "IsOpen");
             
             notesEntry.Unfocused += NotesEntry_Unfocused;
+            ginLoadEntry.Unfocused += GinLoadEntry_Unfocused;
+
+            ginLoadEntry.Focused += GinLoadEntry_Focused;
 
             if (vm.Modules != null)
             {
@@ -111,6 +121,21 @@ namespace RFIDModuleScan.UserControls
 
 
             vm.Modules.CollectionChanged += Modules_CollectionChanged;
+        }
+
+        private void GinLoadEntry_Focused(object sender, FocusEventArgs e)
+        {
+            _vm.IsGinLoadFocused = true;
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<LoadFocusedMessage>(new LoadFocusedMessage { ID = _vm.ID, VM = _vm });
+        }
+
+        private void GinLoadEntry_Unfocused(object sender, FocusEventArgs e)
+        {
+            Entry entry = sender as Entry;
+            _vm.IsGinLoadFocused = false;
+
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<LoadUnFocusedMessage>(new LoadUnFocusedMessage { ID = _vm.ID, VM = _vm });
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<GinTicketLoadNumberChangedMessage>(new GinTicketLoadNumberChangedMessage { ID = _vm.ID, GinTicketLoadNumber = ginLoadEntry.Text });
         }
 
         private void NotesEntry_Unfocused(object sender, FocusEventArgs e)

@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"       
+             xmlns:custom="clr-namespace:RFIDModuleScan.Layouts;assembly=RFIDModuleScan"   
+             xmlns:usercontrols="clr-namespace:RFIDModuleScan.UserControls;assembly=RFIDModuleScan"   
+             xmlns:converter="clr-namespace:RFIDModuleScan.Converters"
+             Style="{StaticResource mainPage}" Title="Ownership Lookup"  Padding="0" 
+             x:Class="RFIDModuleScan.Views.OwnershipLookupPage" Appearing="ContentPage_Appearing" Disappearing="ContentPage_Disappearing">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converter:InvalidIntStringColorConverter x:Key="InvalidIntStringColorConverter"/>
+            <converter:InvalidIntStringTextColorConverter x:Key="InvalidIntStringTextColorConverter"/>
+            <converter:EmptyStringInvisibleConverter x:Key="EmptyStringInvisibleConverter"/>
+            <converter:BoolToArrowImageConverter x:Key="BoolToArrowImageConverter"/>
+            <converter:NotConverter x:Key="NotConverter"/>
+            <converter:EmptyStringToColorConverter x:Key="EmptyStringToColorConverter"/>
+            <converter:EmptyStringVisibleConverter x:Key="EmptyStringVisibleConverter"/>
+            <converter:PickerValueVisibilityConverter x:Key="PickerValueVisibilityConverter"/>                        
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <AbsoluteLayout>
+
+        <Grid x:Name="rootContentView" Margin="0" Padding="0" RowSpacing="0" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />                                
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+
+            <StackLayout Padding="5,5,5,0"  MinimumHeightRequest="0" Grid.Row="0" Grid.Column="0">
+                <Label Text="Enter or scan module serial#" FontSize="Medium" />
+                <Entry Text="{Binding SerialNumber, Mode=TwoWay}" Keyboard="Numeric" />
+                <Button x:Name="btnSearch" Text="Search" Style="{StaticResource primaryTabButton}" HorizontalOptions="FillAndExpand" Command="{Binding SearchCommand}" />
+                <Button x:Name="btnOpticalScan" Text="Scan with Camera" Style="{StaticResource primaryTabButton}" HorizontalOptions="FillAndExpand" Command="{Binding OpenCameraCommand}" />
+            </StackLayout>
+            
+            <ScrollView x:Name="moduleScrollView"  Grid.Row="1" Grid.Column="0" VerticalOptions="Fill" HorizontalOptions="Fill" >
+                <StackLayout>
+                    <Label Text="Module not found" IsVisible="{Binding NoMatchFound}" Margin="5,5,5,5" FontSize="Medium" TextColor="Red"/>
+                    <Grid IsVisible="{Binding ShowResults}" Padding="5,5,5,5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Text="Client:" FontSize="Medium" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Client}" FontSize="Medium"/>
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Farm:" FontSize="Medium"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding Farm}" FontSize="Medium"/>
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Field:" FontSize="Medium"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding Field}" FontSize="Medium"/>
+
+                        <Label Grid.Row="3" Grid.Column="0" Text="Gin Ticket:" FontSize="Medium"/>
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding GinTicketLoadNumber}" FontSize="Medium"/>
+
+                        <Label Grid.Row="4" Grid.Column="0" Text="Truck Load:" FontSize="Medium"/>
+                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding TruckLoadNumber}" FontSize="Medium" />
+
+                        <Label Grid.Row="5" Grid.Column="0" Text="Bridge Load:" FontSize="Medium"/>
+                        <Label Grid.Row="5" Grid.Column="1" Text="{Binding BridgeLoadNumber}" FontSize="Medium"/>
+
+                        <Label Grid.Row="6" Grid.Column="0" Text="Status:" FontSize="Medium"/>
+                        <Label Grid.Row="6" Grid.Column="1" Text="{Binding Status}" FontSize="Medium"/>
+
+                        <Label Grid.Row="7" Grid.Column="0" Text="Variety:" FontSize="Medium"/>
+                        <Label Grid.Row="7" Grid.Column="1" Text="{Binding Variety}" FontSize="Medium"/>
+                    </Grid>
+                </StackLayout>
+            </ScrollView>
+        </Grid>
+
+        <usercontrols:BusyIndicatorView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BusyMessage="{Binding BusyMessage}" IsVisible="{Binding IsBusy}" />
+    </AbsoluteLayout>
+</ContentPage>

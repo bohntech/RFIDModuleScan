@@ -218,6 +218,7 @@ namespace RFIDModuleScan.Core.ViewModels
                         LoadViewModel loadVM = new LoadViewModel();
                         loadVM.LoadNumber = load.LoadNumber;
                         loadVM.Notes = load.Notes;
+                        loadVM.GinTicketLoadNumber = load.GinTicketLoadNumber;
                         loadVM.Modules = new RangeObservableCollection<ModuleScanViewModel>();
                         loadVM.ID = load.ID;
                         loadVM.IsOpen = true;

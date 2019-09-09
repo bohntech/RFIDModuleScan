@@ -32,6 +32,7 @@ namespace RFIDModuleScan.Core.Data
             database.CreateTable<Client>();
             database.CreateTable<Farm>();
             database.CreateTable<Field>();
+            database.CreateTable<ModuleOwnership>();
 
             /*database.Execute("UPDATE FieldScan Set GrowerID=?, FarmID=?, FieldID=?", null, null, null);
             DeleteSetting(AppSettingID.Version);
@@ -135,7 +136,31 @@ namespace RFIDModuleScan.Core.Data
             }
         }
 
+        public string UpdateOwnership(ModuleOwnership objectToSave)
+        {
+            lock (locker)
+            {  
+                    database.Update(objectToSave);
+                    return objectToSave.ID;               
+            }
+        }
+
         public int InsertAll<TObject>(IEnumerable<TObject> objectsToAdd) where TObject : IDBEntity, new()
+        {
+            lock (locker)
+            {
+                if (objectsToAdd.Count() > 0)
+                {
+                    return database.InsertAll(objectsToAdd);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        public int InsertAllObjects<TObject>(IEnumerable<TObject> objectsToAdd) where TObject : new()
         {
             lock (locker)
             {
@@ -164,7 +189,28 @@ namespace RFIDModuleScan.Core.Data
             }            
         }
 
+        public IList<TObject> FindObjects<TObject, U>(Expression<Func<TObject, bool>> expression, Expression<Func<TObject, U>> sortExpr = null) where TObject : new()
+        {
+            lock (locker)
+            {
+                if (sortExpr != null)
+                    return database.Table<TObject>().Where(expression).OrderBy(sortExpr).ToList();
+                else
+                {
+                    return database.Table<TObject>().Where(expression).ToList();
+                }
+            }
+        }
+
         public IList<TObject> GetAll<TObject>() where TObject : IDBEntity, new()
+        {
+            lock (locker)
+            {
+                return database.Table<TObject>().ToList();
+            }
+        }
+
+        public IList<TObject> GetAllObjects<TObject>() where TObject : new()
         {
             lock (locker)
             {
@@ -242,7 +288,7 @@ namespace RFIDModuleScan.Core.Data
             }            
         }
 
-        private List<TObject> MergeLists<TObject>(List<TObject> remoteList, List<TObject> localList, List<TObject> itemsRemoved) where TObject : IListEntity
+        /*private List<TObject> MergeLists<TObject>(List<TObject> remoteList, List<TObject> localList, List<TObject> itemsRemoved) where TObject : IListEntity
         {
             //make a first pass and update names of entities with matching ids - otherwise items get deleted when a name is changed
             foreach(var remoteItem in remoteList)
@@ -293,6 +339,82 @@ namespace RFIDModuleScan.Core.Data
                 }
             }
             return updatedList;
+        }*/
+
+        private List<TObject> MergeLists<TObject>(List<TObject> remoteList, List<TObject> localList, List<TObject> itemsRemoved) where TObject : IListEntity
+        {
+            ListDictionary<TObject> localItemKeyDictionary = new ListDictionary<TObject>();
+            ListDictionary<TObject> localItemIDDictionary = new ListDictionary<TObject>();
+            ListDictionary<TObject> remoteItemKeyDictionary = new ListDictionary<TObject>();
+            ListDictionary<TObject> remoteItemIdDictionary = new ListDictionary<TObject>();
+
+
+            
+            foreach (var remoteItem in remoteList)
+            {
+                remoteItemKeyDictionary.AddValueForKey(remoteItem.CompareKey, remoteItem);
+                remoteItemIdDictionary.AddValueForKey(remoteItem.ID.ToString(), remoteItem);
+            }
+
+            foreach(var localItem in localList)
+            {
+                localItemKeyDictionary.AddValueForKey(localItem.CompareKey, localItem);
+                localItemIDDictionary.AddValueForKey(localItem.ID.ToString(), localItem);
+            }
+
+            //make a first pass and update names of entities with matching ids - otherwise items get deleted when a name is changed
+            foreach (var remoteItem in remoteList)
+            {
+                var localMatchingList = localItemIDDictionary.GetValuesForKey(remoteItem.ID.ToString());
+                foreach (var localItem in localMatchingList)
+                {
+                    localItem.Source = "Cloud";
+                    localItem.CopyValues(remoteItem);
+                }
+            }
+
+            foreach (var remoteItem in remoteList)
+            {
+                //update local items that are also in cloud that match on compare_key - ignore items with matching id as they should have been updated in first loop
+                if (localItemKeyDictionary.HasKey(remoteItem.CompareKey))
+                {
+                    foreach (var localItem in localItemKeyDictionary.GetValuesForKey(remoteItem.CompareKey))
+                    {
+                        localItem.Source = "Cloud";
+
+                        //if id's are different save copy of local item ID in previous ID to aid in updating field scans with new names
+                        if (localItem.ID.ToString() != remoteItem.ID.ToString())
+                        {
+                            localItem.PreviousID = localItem.ID;  //save a copy of the old id this helps us update names on field scans
+                        }
+                        localItem.CopyValues(remoteItem);
+                    }
+                }
+                else  //remote item isn't in local list so add
+                {
+                    var newLocalItem = remoteItem;
+                    newLocalItem.Source = "Cloud";
+                    localList.Add(newLocalItem);
+                    localItemKeyDictionary.AddValueForKey(newLocalItem.CompareKey, newLocalItem);
+                    localItemIDDictionary.AddValueForKey(newLocalItem.ID.ToString(), newLocalItem);
+                }
+            }
+
+            //remove local items with Source cloud that no longer exist in remoteList            
+            var updatedList = new List<TObject>();
+            foreach (var localItem in localList)
+            {
+                if (localItem.Source == "Cloud" && !remoteItemKeyDictionary.HasKey(localItem.CompareKey))
+                {
+                    //do nothing - skip to item isn't added
+                    itemsRemoved.Add(localItem);
+                }
+                else
+                {
+                    updatedList.Add(localItem);
+                }
+            }
+            return updatedList;
         }
 
         private void CleanUpClientList(List<Client> remoteList)
@@ -327,7 +449,7 @@ namespace RFIDModuleScan.Core.Data
 
         private void insertFieldsAndParentsLocal(List<Field> updatedFieldList)
         {
-            var newClients = new List<Client>();
+            /*var newClients = new List<Client>();
             var newFarms = new List<Farm>();
             var newFields = new List<Field>();
 
@@ -349,33 +471,76 @@ namespace RFIDModuleScan.Core.Data
 
             InsertAll<Client>(newClients);
             InsertAll<Farm>(newFarms);
+            InsertAll<Field>(newFields);*/
+
+            var newClients = new List<Client>();
+            ListDictionary<Client> newClientKeyDict = new ListDictionary<Client>();
+            ListDictionary<Farm> newFarmKeyDict = new ListDictionary<Farm>();
+            ListDictionary<Field> newFieldKeyDict = new ListDictionary<Field>();
+
+            var newFarms = new List<Farm>();
+            var newFields = new List<Field>();
+
+            foreach (var f in updatedFieldList)
+            {
+                if (f.Farm != null && f.Farm.Client != null && !newClientKeyDict.HasKey(f.Farm.Client.CompareKey))
+                {
+                    newClients.Add(f.Farm.Client);
+                    newClientKeyDict.AddValueForKey(f.Farm.Client.CompareKey, f.Farm.Client);
+                }
+
+                if (f.Farm != null && !newFarmKeyDict.HasKey(f.Farm.CompareKey))
+                {
+                    newFarms.Add(f.Farm);
+                    newFarmKeyDict.AddValueForKey(f.Farm.CompareKey, f.Farm);
+                }
+
+                if (!newFieldKeyDict.HasKey(f.CompareKey))
+                {
+                    newFields.Add(f);
+                    newFieldKeyDict.AddValueForKey(f.CompareKey, f);
+                }
+            }
+
+            InsertAll<Client>(newClients);
+            InsertAll<Farm>(newFarms);
             InsertAll<Field>(newFields);
+
         }
 
         private void insertFarmsAndParentsLocal(List<Farm> updatedFarmList)
         {
             var existingClients = GetAll<Client>().ToList();
             var existingFarms = GetAll<Farm>().ToList();
+
+            ListDictionary<Client> existingClientKeyDict = new ListDictionary<Client>();
+            ListDictionary<Farm> existingFarmKeyDict = new ListDictionary<Farm>();
+            
             populateFarmClients(existingClients, existingFarms);
+
+            foreach (var c in existingClients) existingClientKeyDict.AddValueForKey(c.CompareKey, c);
+            foreach (var f in existingFarms) existingFarmKeyDict.AddValueForKey(f.CompareKey, f);
 
             var newClients = new List<Client>();
             var newFarms = new List<Farm>();
 
             foreach (var f in updatedFarmList)
             {
-                if (f.Client != null && !existingClients.Any(x => x.CompareKey == f.Client.CompareKey))
+                if (f.Client != null && !existingClientKeyDict.HasKey(f.Client.CompareKey))
                 {
                     existingClients.Add(f.Client);
+                    existingClientKeyDict.AddValueForKey(f.Client.CompareKey, f.Client);
                     newClients.Add(f.Client);
                 }
 
-                if (!existingFarms.Any(x => x.CompareKey == f.CompareKey))
+                if (!existingFarmKeyDict.HasKey(f.CompareKey))
                 {
                     existingFarms.Add(f);
+                    existingFarmKeyDict.AddValueForKey(f.CompareKey, f);
                     newFarms.Add(f);
                 }
             }
-
+            
             InsertAll<Client>(newClients);
             InsertAll<Farm>(newFarms);         
         }
@@ -384,12 +549,17 @@ namespace RFIDModuleScan.Core.Data
         {
             var existingClients = GetAll<Client>().ToList();
             var newClients = new List<Client>();
-            
+
+            ListDictionary<Client> existingClientKeyDict = new ListDictionary<Client>();            
+
+            foreach (var c in existingClients) existingClientKeyDict.AddValueForKey(c.CompareKey, c);            
+
             foreach (var c in updatedClientList)
             {
-                if (!existingClients.Any(x => x.CompareKey == c.CompareKey))
+                if (!existingClientKeyDict.HasKey(c.CompareKey))
                 {
                     existingClients.Add(c);
+                    existingClientKeyDict.AddValueForKey(c.CompareKey, c);
                     newClients.Add(c);
                 }                
             }
@@ -455,12 +625,12 @@ namespace RFIDModuleScan.Core.Data
             fields.AddRange(localFields);
         }              
 
-        public void SyncRemoteLists()
+        public void SyncRemoteLists(bool manualSync)
         {
             try
             {
                 //sync if connected and has endpoint and key
-                if (Plugin.Connectivity.CrossConnectivity.Current.IsConnected && CacheTimingHelper.AllowSync)
+                if (Plugin.Connectivity.CrossConnectivity.Current.IsConnected && (CacheTimingHelper.AllowSync || manualSync))
                 {
 
                     var endPointSetting = this.GetSetting(AppSettingID.GinDBUrl);
@@ -557,6 +727,62 @@ namespace RFIDModuleScan.Core.Data
             }
         }
 
+        public void SyncOwnership()
+        {
+            try
+            {
+                //sync if connected and has endpoint and key
+                if (Plugin.Connectivity.CrossConnectivity.Current.IsConnected)
+                {
+                    var endPointSetting = this.GetSetting(AppSettingID.GinDBUrl);
+                    var keySetting = this.GetSetting(AppSettingID.GinDBKey);
+                    var lastOwnershipSyncSetting = this.GetSetting(AppSettingID.OwnershipSyncSettingKey);
+                    DateTime lastSyncTime = DateTime.Now;
+                    DateTime startTime = DateTime.UtcNow;
+                    if (lastOwnershipSyncSetting == null)
+                    {
+                        lastSyncTime = DateTime.UtcNow.AddYears(-1);
+                        this.SaveSetting(AppSettingID.OwnershipSyncSettingKey, lastSyncTime.ToString());
+                    }
+                    else
+                    {
+                        lastSyncTime = DateTime.Parse(lastOwnershipSyncSetting.Value).AddMinutes(-3); //backup 3 minutes to handle Cosmos propagation time
+                    }                                        
+
+                    if (endPointSetting != null && keySetting != null &&
+                        !string.IsNullOrWhiteSpace(endPointSetting.GetDecryptedValue()) &&
+                        !string.IsNullOrWhiteSpace(keySetting.GetDecryptedValue()))
+                    {
+                        ICloudDataService cloudSvc = Xamarin.Forms.DependencyService.Get<ICloudDataService>();
+                        cloudSvc.Init(endPointSetting.GetDecryptedValue(), keySetting.GetDecryptedValue());
+
+                        //get lists from cloud
+                        var ownerships = cloudSvc.GetModuleOwnershipChanges(lastSyncTime);
+
+                        if (ownerships.Count() > 0)
+                        {
+                            var sns = ownerships.Select(o => o.Name).ToList();
+                            var allOwnerships = this.GetAllObjects<ModuleOwnership>().ToList();
+                            var existingOwnerships = allOwnerships.Where(o => sns.Contains(o.Name));                            
+                            foreach (var o in ownerships.Where(i => existingOwnerships.Any(x => x.Name == i.Name)))
+                            {
+                                var existingOwnership = existingOwnerships.Single(x => x.Name == o.Name);
+                                o.ID = existingOwnership.ID; //make sure to use database ID
+                                this.UpdateOwnership(o);
+                            }
+                            this.InsertAllObjects<ModuleOwnership>(ownerships.Where(i => !existingOwnerships.Any(x => x.Name == i.Name)));
+                            this.SaveSetting(AppSettingID.OwnershipSyncSettingKey, startTime.ToString());
+                        }
+                    }
+                    
+                }
+            }
+            catch (Exception exc)
+            {
+                string msg = exc.Message;
+            }
+        }
+
         public void ClearData()
         {
             database.DeleteAll<FieldScan>();
@@ -564,7 +790,10 @@ namespace RFIDModuleScan.Core.Data
             database.DeleteAll<ModuleScan>();
             database.DeleteAll<Client>();
             database.DeleteAll<Farm>();
-            database.DeleteAll<Field>();         
+            database.DeleteAll<Field>();
+            database.DeleteAll<ModuleOwnership>();
+
+            this.SaveSetting(AppSettingID.OwnershipSyncSettingKey, DateTime.Now.AddYears(-1).ToString());
         }
 
         public void CleanUpLists()
@@ -711,6 +940,37 @@ namespace RFIDModuleScan.Core.Data
                 field.EntityType = "FIELD";
                 Save<Field>(field);
             }
+        }
+    }
+
+    public class ListDictionary<TObject>
+    {
+        private Dictionary<string, List<TObject>> listDictionary = new Dictionary<string, List<TObject>>();
+
+        public List<TObject> GetValuesForKey(string key)
+        {
+            List<TObject> list = null;
+            if (!listDictionary.TryGetValue(key, out list))
+            {
+                list = new List<TObject>();               
+            }
+            return list;
+        }
+
+        public void AddValueForKey(string key, TObject value)
+        {
+            List<TObject> list = null;
+            if (!listDictionary.TryGetValue(key, out list))
+            {
+                list = new List<TObject>();
+                listDictionary.Add(key, list);
+            }
+            list.Add(value);
+        }
+        
+        public bool HasKey(string key)
+        {
+            return listDictionary.ContainsKey(key);
         }
     }
 }

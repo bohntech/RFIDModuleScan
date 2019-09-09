@@ -84,9 +84,9 @@ namespace RFIDModuleScan.Core.Data
             StringBuilder sb = new StringBuilder();
 
             //write header
-            sb.AppendLine("Module ID,Module SN,Lat,Lon,GMT Date,GMT Time,Tag Count,Client,Farm,Field,Variety,Machine PIN,Operator,Gin ID,Producer ID,Local Time,Field Area (Sq m),Season Total,Moisture (%),Diameter (cm),Weight (kg),Drop Lat,Drop Lon,Field Total,Incremental Area (Sq m),Local Date,Comment,Load,GrowerID,FarmID,FieldID");
+            sb.AppendLine("Module ID,Module SN,Lat,Lon,GMT Date,GMT Time,Tag Count,Client,Farm,Field,Variety,Machine PIN,Operator,Gin ID,Producer ID,Local Time,Field Area (Sq m),Season Total,Moisture (%),Diameter (cm),Weight (kg),Drop Lat,Drop Lon,Field Total,Incremental Area (Sq m),Local Date,Comment,Load,GinTicketLoadNumber,GrowerID,FarmID,FieldID");
 
-            string templateLine = "{ModuleID},{SerialNumber},{Latitude},{Longitude},{GMTDate},{GMTTime},1,{Client},{Farm},{Field},,{TabletID},{Operator},{GinID},{ProducerID},{LocalTime},,,,,,{DropLat},{DropLon},{FieldTotal},,{LocalDate},{Comments},{Load},{GrowerID},{FarmID},{FieldID}";
+            string templateLine = "{ModuleID},{SerialNumber},{Latitude},{Longitude},{GMTDate},{GMTTime},1,{Client},{Farm},{Field},,{TabletID},{Operator},{GinID},{ProducerID},{LocalTime},,,,,,{DropLat},{DropLon},{FieldTotal},,{LocalDate},{Comments},{Load},{GinTicketLoadNumber},{GrowerID},{FarmID},{FieldID}";
 
             var allModuleScans = dataService.GetAll<ModuleScan>().ToList();
             var allLoads = dataService.GetAll<Load>().ToList();
@@ -124,6 +124,7 @@ namespace RFIDModuleScan.Core.Data
                         dataString = dataString.Replace("{FieldTotal}", scanCount.ToString());
                         dataString = dataString.Replace("{Comments}", EscapeForCSV(load.Notes));
                         dataString = dataString.Replace("{Load}", EscapeForCSV(load.LoadNumber.ToString()));
+                        dataString = dataString.Replace("{GinTicketLoadNumber}", EscapeForCSV(load.GinTicketLoadNumber));
 
                         dataString = dataString.Replace("{GrowerID}", EscapeForCSV(scan.GrowerID));
                         dataString = dataString.Replace("{FarmID}", EscapeForCSV(scan.FarmID));
@@ -150,7 +151,7 @@ namespace RFIDModuleScan.Core.Data
             StringBuilder sb = new StringBuilder();
 
             //write header
-            sb.AppendLine("Grower,Farm,Field,SerialNumber,ModuleID,Load,ScanLocation,ScanType,Timestamp,Latitude,Longitude,TabletID,Notes,GrowerID,FarmID,FieldID");
+            sb.AppendLine("Grower,Farm,Field,SerialNumber,ModuleID,Load,GinTicketLoadNumber,ScanLocation,ScanType,Timestamp,Latitude,Longitude,TabletID,Notes,GrowerID,FarmID,FieldID");
 
             var allModuleScans = dataService.GetAll<ModuleScan>().ToList();
             var allLoads = dataService.GetAll<Load>().ToList();
@@ -185,6 +186,9 @@ namespace RFIDModuleScan.Core.Data
                         sb.Append(EscapeForCSV(load.LoadNumber.ToString()));
                         sb.Append(",");
 
+                        sb.Append(EscapeForCSV(load.GinTicketLoadNumber));
+                        sb.Append(",");
+
                         sb.Append(EscapeForCSV(scan.ScanLocation));
                         sb.Append(",");
 
@@ -206,7 +210,7 @@ namespace RFIDModuleScan.Core.Data
                         }
                         sb.Append(",");
 
-                        sb.Append(EscapeForCSV(module.TimeStamp.ToString("MM/dd/yyy hh:mm tt")));
+                        sb.Append(EscapeForCSV(module.TimeStamp.ToString("MM/dd/yyyy HH:mm:ss")));
                         sb.Append(",");
 
                         if (module.Latitude.ToString() == "0")

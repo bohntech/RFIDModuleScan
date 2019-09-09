@@ -44,6 +44,7 @@
     <Compile Include="Data\Field.cs" />
     <Compile Include="Data\FieldScan.cs" />
     <Compile Include="Data\FileBuilder.cs" />
+    <Compile Include="Data\ModuleOwnership.cs" />
     <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Helpers\EncryptionHelper.cs" />
     <Compile Include="Helpers\NetworkHelper.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="ViewModels\ModuleScanViewModel.cs" />
     <Compile Include="Models\ScannerModel.cs" />
     <Compile Include="Enums\ScannerType.cs" />
+    <Compile Include="ViewModels\OwnershipLookupViewModel.cs" />
     <Compile Include="ViewModels\ReviewPageViewModel.cs" />
     <Compile Include="ViewModels\ScanItemViewModel.cs" />
     <Compile Include="ViewModels\ScanSettingsViewModel.cs" />

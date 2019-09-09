@@ -39,11 +39,17 @@ namespace RFIDModuleScan.Core.ViewModels
         private bool _origAutoLoadAssign = true;
         private string _origStartLoadNumber = "1";
         private string _origMaxModulesPerLoad = "1";
+        private string _loadPrefixSuffixChar = "";
+        private string _lastLoadScanned = "";
 
         private List<Client> dbClients = new List<Client>();
         private List<Farm> dbFarms = new List<Data.Farm>();
         private List<Field> dbFields = new List<Field>();
 
+        private LoadViewModel focusedLoad = null;
+        private LoadViewModel previousFocusedLoad = null;
+        private DateTime lastLoadUnfocused = DateTime.Now.AddDays(-1);
+        private bool capturingPreviousLoadNumber = false;
 
 
         private Queue<ScanEventData> itemQueue = null;
@@ -296,6 +302,13 @@ namespace RFIDModuleScan.Core.ViewModels
             get { return _notes; }
             set { Set<String>(() => Notes, ref _notes, value); }
         }
+
+       /* private string _ginTicketLoadNumber;
+        public string GinTicketLoadNumber
+        {
+            get { return _ginTicketLoadNumber; }
+            set { Set<String>(() => GinTicketLoadNumber, ref _ginTicketLoadNumber, value); }
+        }*/
 
         private string _scanLocation;
         public string ScanLocation
@@ -695,10 +708,16 @@ namespace RFIDModuleScan.Core.ViewModels
 
                             lastLoad = new LoadViewModel();
                             lastLoad.LoadNumber = nextLoadNumber;
+
+                            if (Loads.Any(l => l.GinTicketLoadNumber == _lastLoadScanned))
+                                lastLoad.GinTicketLoadNumber = "";
+                            else
+                                lastLoad.GinTicketLoadNumber = _lastLoadScanned;
+
                             lastLoad.Modules = new RangeObservableCollection<ModuleScanViewModel>();
 
                             //create the new load
-                            var dbLoad = new Load { FieldScanID = _fieldScanID.Value, LoadNumber = lastLoad.LoadNumber, Notes = Notes, ID = Guid.NewGuid() };
+                            var dbLoad = new Load { FieldScanID = _fieldScanID.Value, LoadNumber = lastLoad.LoadNumber, Notes = Notes, GinTicketLoadNumber = lastLoad.GinTicketLoadNumber, ID = Guid.NewGuid() };
                             loadsToInsert.Add(dbLoad);
                             //dbLoad.ID = _dataService.Save(dbLoad);
                             //GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<LoadViewModel>(loadVM);                    
@@ -723,7 +742,7 @@ namespace RFIDModuleScan.Core.ViewModels
                         moduleScan.SerialNumber = scan.SerialNumber;
                         moduleScan.ModuleID = scan.ModuleID;
                         moduleScan.TimeStamp = scan.TimeStamp;
-                        moduleScan.Note = Notes;
+                        moduleScan.Note = Notes;                        
                         scansToInsert.Add(moduleScan);
                     }
                 }
@@ -750,7 +769,8 @@ namespace RFIDModuleScan.Core.ViewModels
                     Loads[i].IsOpen = false;
                 }
 
-                Loads[Loads.Count() - 1].IsOpen = true;               
+                if (Loads.Count() > 0)
+                    Loads[Loads.Count() - 1].IsOpen = true;               
             }            
         }
         #endregion
@@ -789,6 +809,11 @@ namespace RFIDModuleScan.Core.ViewModels
             StartOpticalScanCommand = new RelayCommand(this.ExecuteStartOpticalScanCommand);
 
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<NotesChangedMessage>(this, this.SaveNotes);
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<GinTicketLoadNumberChangedMessage>(this, this.SaveGinTicketLoadNumber);
+
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<LoadFocusedMessage>(this, this.LoadFocused);
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<LoadUnFocusedMessage>(this, this.LoadUnfocused);
+
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Register<ReviewCancelMessage>(this, this.HandleReviewCancel);
             
         }
@@ -807,6 +832,9 @@ namespace RFIDModuleScan.Core.ViewModels
             }
 
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Unregister<NotesChangedMessage>(this);
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Unregister<GinTicketLoadNumberChangedMessage>(this);
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Unregister<LoadFocusedMessage>(this);
+            GalaSoft.MvvmLight.Messaging.Messenger.Default.Unregister<LoadUnFocusedMessage>(this);
             GalaSoft.MvvmLight.Messaging.Messenger.Default.Unregister<ReviewCancelMessage>(this);
             ScannerConnectionManager.ScannerContext.ConnectionStateChanged -= ScannerContext_ConnectionStateChanged;
             ScannerConnectionManager.ScannerContext.ItemScanned -= ScannerContext_ItemScanned;
@@ -844,12 +872,14 @@ namespace RFIDModuleScan.Core.ViewModels
         {
             IsReviewMode = false;
             IsBusy = true;
+
+            _loadPrefixSuffixChar = Configuration.LoadTagPrefix;
             
             BusyMessage = "Loading...";
 
             if (Configuration.ConnectedToGin)
             {
-                _dataService.SyncRemoteLists(); //sync client/farm/field lists              
+                //_dataService.SyncRemoteLists(); //sync client/farm/field lists              
             }
             else
             {
@@ -951,6 +981,7 @@ namespace RFIDModuleScan.Core.ViewModels
 
                 ScanLocation = scan.ScanLocation;
                 Notes = scan.Note;
+                
                 CanEditStartingLoadNumber = true;
                 _newScan = false;
                 IsEditMode = false;
@@ -969,6 +1000,7 @@ namespace RFIDModuleScan.Core.ViewModels
                         LoadViewModel loadVM = new LoadViewModel();
                         loadVM.LoadNumber = load.LoadNumber;
                         loadVM.Notes = load.Notes;
+                        loadVM.GinTicketLoadNumber = load.GinTicketLoadNumber;
                         loadVM.Modules = new RangeObservableCollection<ModuleScanViewModel>();
                         loadVM.ID = load.ID;
                         loadVM.IsOpen = false;
@@ -1150,7 +1182,27 @@ namespace RFIDModuleScan.Core.ViewModels
                 _fieldScanID = _dataService.Save(scan);
                                 
                 persistScanCounts();
-                                
+                
+                /*for (var i = 0; i < 500; i++)
+                {
+                    FieldScan testScan = new FieldScan();
+                    testScan.AutoLoadAssign = AutoLoadAssign;
+                    testScan.Farm = Farm;
+                    testScan.FarmID = (farmObj != null) ? farmObj.ID.ToString() : "";
+                    testScan.Field = Field;
+                    testScan.FieldID = (fieldObj != null) ? fieldObj.ID.ToString() : "";
+                    testScan.Grower = Grower;
+                    testScan.GrowerID = (clientObj != null) ? clientObj.ID.ToString() : "";
+
+                    testScan.ListTypeID = (int)_listType;
+                    testScan.MaxModulesPerLoad = int.Parse(MaxModulesPerLoad);
+                    testScan.Note = Notes;
+                    testScan.ScanLocation = ScanLocation;
+                    testScan.StartingLoadNumber = int.Parse(StartingLoadNumber);
+
+                    _dataService.Save(testScan);
+                }*/
+
 
                 //reload local lists
                 initLists();
@@ -1218,6 +1270,7 @@ namespace RFIDModuleScan.Core.ViewModels
                     targetLoad.Modules = new RangeObservableCollection<ModuleScanViewModel>();
                     targetLoad.IsOpen = true;
                     targetLoad.Notes = string.Empty;
+                    targetLoad.GinTicketLoadNumber = string.Empty;
                     targetLoad.IsDirty = true;
                     Loads.AddWithoutNotify(targetLoad);
 
@@ -1226,6 +1279,7 @@ namespace RFIDModuleScan.Core.ViewModels
                     dbLoad.FieldScanID = _fieldScanID.Value;
                     dbLoad.LoadNumber = targetLoad.LoadNumber;
                     dbLoad.Notes = string.Empty;
+                    dbLoad.GinTicketLoadNumber = string.Empty;
                     targetLoad.ID = _dataService.Save(dbLoad);
                 }
                 else
@@ -1378,6 +1432,7 @@ namespace RFIDModuleScan.Core.ViewModels
                             dbLoad.FieldScanID = _fieldScanID.Value;
                             dbLoad.LoadNumber = newLoad.LoadNumber;
                             dbLoad.Notes = string.Empty;
+                            dbLoad.GinTicketLoadNumber = string.Empty;
                             newLoad.ID=_dataService.Save(dbLoad);
                         }
                     });
@@ -1389,7 +1444,13 @@ namespace RFIDModuleScan.Core.ViewModels
 
         public RelayCommand StartOpticalScanCommand { get; private set; }
         private void ExecuteStartOpticalScanCommand()
-        {
+        {            
+            if (previousFocusedLoad != null && lastLoadUnfocused.AddMilliseconds(250) > DateTime.Now)
+            {
+                capturingPreviousLoadNumber = true;
+            }
+            
+
             _navigationService.NavigateTo(ViewLocator.OpticalScanPage, this);
         }
 
@@ -1398,6 +1459,11 @@ namespace RFIDModuleScan.Core.ViewModels
         {
             IsReviewMode = true;
             _navigationService.NavigateTo(ViewLocator.ReviewPage, _fieldScanID.Value);
+        }
+
+        public void CloseOpticalPage()
+        {
+          
         }
 
         public RelayCommand TransmitCommand { get; private set; }
@@ -1550,7 +1616,7 @@ namespace RFIDModuleScan.Core.ViewModels
         #region Scanner Events      
 
         public void AddOpticalScan(string rawScanData, out string serialNumber, out string gpsMessage)
-        {
+        {            
             ItemScannedEventArgs args = new ItemScannedEventArgs();
             args.EventData = new ScanEventData();
             args.EventData.IsBarcode = true;
@@ -1565,6 +1631,13 @@ namespace RFIDModuleScan.Core.ViewModels
 
             serialNumber = args.EventData.SerialNumber;            
             gpsMessage = GPSMessage;
+
+            if (capturingPreviousLoadNumber)
+            {
+                capturingPreviousLoadNumber = false;
+                previousFocusedLoad = null;
+                _navigationService.GoBack();
+            }
         }
         
         private void ScannerContext_ItemScanned(object sender, ItemScannedEventArgs e2)
@@ -1573,60 +1646,90 @@ namespace RFIDModuleScan.Core.ViewModels
             {
                 if (!IsEditMode && !IsReviewMode && !IsBusy)  //don't add items when on review page
                 {
-                    if (!e2.EventData.IsFlush)
+                    if (e2.EventData.IsBarcode && e2.EventData.SerialNumber.StartsWith(_loadPrefixSuffixChar))
                     {
-                        itemQueue.Enqueue(e2.EventData);
+                        _lastLoadScanned = e2.EventData.SerialNumber.Replace(_loadPrefixSuffixChar, string.Empty).Trim();                        
+                        if (focusedLoad == null)
+                        {
+                            if (capturingPreviousLoadNumber)
+                            {
+                                previousFocusedLoad.GinTicketLoadNumber = _lastLoadScanned;
+                                SaveGinTicketLoadNumber(new GinTicketLoadNumberChangedMessage { ID = previousFocusedLoad.ID, GinTicketLoadNumber = previousFocusedLoad.GinTicketLoadNumber });
+                            }
+                            else { 
+                                var activeLoad = Loads.LastOrDefault();
+                                if (activeLoad != null && string.IsNullOrEmpty(activeLoad.GinTicketLoadNumber))
+                                {
+                                    activeLoad.GinTicketLoadNumber = _lastLoadScanned;
+                                    SaveGinTicketLoadNumber(new GinTicketLoadNumberChangedMessage { ID = activeLoad.ID, GinTicketLoadNumber = activeLoad.GinTicketLoadNumber });
+                                    GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<LoadsChangedMessage>(new LoadsChangedMessage());
+                                }
+                            }
+                        }
+                        else
+                        {
+                            focusedLoad.GinTicketLoadNumber = _lastLoadScanned;
+                            SaveGinTicketLoadNumber(new GinTicketLoadNumberChangedMessage { ID = focusedLoad.ID, GinTicketLoadNumber = focusedLoad.GinTicketLoadNumber });
+                            //GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<LoadsChangedMessage>(new LoadsChangedMessage());
+                        }
                     }
                     else
                     {
-
-                        ScanEventData eventData = null;
-                        List<ModuleScanViewModel> scansToAdd = new List<ModuleScanViewModel>();
-                        while (itemQueue.Count() > 0)
+                        if (!e2.EventData.IsFlush)
                         {
-                            eventData = itemQueue.Dequeue();
-                            var scan = new ModuleScanViewModel();
-                            if (eventData.IsJohnDeereTag)
+                            itemQueue.Enqueue(e2.EventData);
+                        }
+                        else if (itemQueue.Count() > 0)
+                        {
+                            ScanEventData eventData = null;
+                            List<ModuleScanViewModel> scansToAdd = new List<ModuleScanViewModel>();
+                            while (itemQueue.Count() > 0)
                             {
-                                if (eventData.IsBarcode)
+                                eventData = itemQueue.Dequeue();
+                                var scan = new ModuleScanViewModel();
+                                if (eventData.IsJohnDeereTag)
                                 {
-                                    scan.ModuleType = Enums.BarCodeTypeEnum.JohnDeereBarCode;
+                                    if (eventData.IsBarcode)
+                                    {
+                                        scan.ModuleType = Enums.BarCodeTypeEnum.JohnDeereBarCode;
+                                    }
+                                    else
+                                    {
+                                        scan.ModuleType = Enums.BarCodeTypeEnum.JohnDeereRFTag;
+                                    }
                                 }
                                 else
                                 {
-                                    scan.ModuleType = Enums.BarCodeTypeEnum.JohnDeereRFTag;
+                                    if (eventData.IsBarcode)
+                                    {
+                                        scan.ModuleType = Enums.BarCodeTypeEnum.GenericBarcode;
+                                    }
+                                    else
+                                    {
+                                        scan.ModuleType = Enums.BarCodeTypeEnum.GenericRFTag;
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                if (eventData.IsBarcode)
+
+                                if (_currentLocator != null && _currentLocator.IsGeolocationAvailable && _currentLocator.IsGeolocationEnabled && _lastPosition != null)
                                 {
-                                    scan.ModuleType = Enums.BarCodeTypeEnum.GenericBarcode;
+                                    scan.Latitude = Convert.ToDecimal(_lastPosition.Latitude);
+                                    scan.Longitude = Convert.ToDecimal(_lastPosition.Longitude);
                                 }
                                 else
                                 {
-                                    scan.ModuleType = Enums.BarCodeTypeEnum.GenericRFTag;
+                                    scan.Longitude = null;
+                                    scan.Latitude = null;
                                 }
+                                scan.SerialNumber = eventData.SerialNumber;
+                                scan.ModuleID = eventData.RawData;
+                                scan.ID = Guid.NewGuid();
+                                scansToAdd.Add(scan);
                             }
 
-                            if (_currentLocator != null && _currentLocator.IsGeolocationAvailable && _currentLocator.IsGeolocationEnabled && _lastPosition != null)
-                            {
-                                scan.Latitude = Convert.ToDecimal(_lastPosition.Latitude);
-                                scan.Longitude = Convert.ToDecimal(_lastPosition.Longitude);
-                            }
-                            else
-                            {
-                                scan.Longitude = null;
-                                scan.Latitude = null;
-                            }
-                            scan.SerialNumber = eventData.SerialNumber;
-                            scan.ModuleID = eventData.RawData;
-                            scan.ID = Guid.NewGuid();
-                            scansToAdd.Add(scan);
+                            addModules(scansToAdd);
+                            persistScanCounts();
+                            GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<LoadsChangedMessage>(new LoadsChangedMessage());
                         }
-                        addModules(scansToAdd);
-                        persistScanCounts();
-                        GalaSoft.MvvmLight.Messaging.Messenger.Default.Send<LoadsChangedMessage>(new LoadsChangedMessage());
                     }
                 }
             }
@@ -1669,6 +1772,31 @@ namespace RFIDModuleScan.Core.ViewModels
             //find load with id
             var load = _dataService.GetByID<Load>(msg.ID);
             load.Notes = msg.Notes;
+            _dataService.Save<Load>(load);
+        }
+
+        private void SaveGinTicketLoadNumber(GinTicketLoadNumberChangedMessage msg)
+        {
+            var load = _dataService.GetByID<Load>(msg.ID);
+            load.GinTicketLoadNumber = msg.GinTicketLoadNumber;
+            _dataService.Save<Load>(load);
+        }
+
+        private void LoadFocused(LoadFocusedMessage msg)
+        {
+            //find load with id
+            focusedLoad = msg.VM;
+            previousFocusedLoad = focusedLoad;
+        }
+
+        private void LoadUnfocused(LoadUnFocusedMessage msg)
+        {
+            //find load with id
+            previousFocusedLoad = focusedLoad;
+            lastLoadUnfocused = DateTime.Now;
+            focusedLoad = null;
+            var load = _dataService.GetByID<Load>(msg.ID);
+            load.GinTicketLoadNumber = msg.VM.GinTicketLoadNumber;
             _dataService.Save<Load>(load);
         }
 

@@ -14,6 +14,7 @@ namespace RFIDModuleScan.Core.Data
         public Guid ID { get; set; }
         public Guid FieldScanID { get; set; }
         public int LoadNumber { get; set; }
+        public string GinTicketLoadNumber { get; set; }
         public string Notes { get; set; }
         public DateTime Created { get; set; }
 
@@ -25,7 +26,7 @@ namespace RFIDModuleScan.Core.Data
 
         public string GetTableHeader()
         {
-            return "ID,FieldScanID,LoadNumber,Notes,Created";
+            return "ID,FieldScanID,LoadNumber,Notes,GinTicketLoadNumber,Created";
         }
 
         public string GetCSVLine()

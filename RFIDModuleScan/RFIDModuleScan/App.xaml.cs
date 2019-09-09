@@ -38,14 +38,13 @@ namespace RFIDModuleScan
             nav.Configure(ViewLocator.OpticalScanPage, typeof(OpticalScanPage));
             nav.Configure(ViewLocator.OpticalFindPage, typeof(OpticalFindPage));
             nav.Configure(ViewLocator.GinConnectPage, typeof(GinConnectPage));
+            nav.Configure(ViewLocator.OwnershipLookupPage, typeof(OwnershipLookupPage));
+            nav.Configure(ViewLocator.OpticalOwnershipLookupPage, typeof(OpticalOwnershipLookupPage));
             SimpleIoc.Default.Register<INavigationService>(() => nav);
-            SimpleIoc.Default.Register<IModuleDataService>(() => new ModuleDataService());
-
-         
+            SimpleIoc.Default.Register<IModuleDataService>(() => new ModuleDataService());         
 
             var startPage = new NavigationPage(new HomePage());            
-            startPage.Popped += StartPage_Popped;
-                        
+            startPage.Popped += StartPage_Popped;                        
                         
             startPage.BarBackgroundColor = Color.FromHex("#404040");
             startPage.BarTextColor = Color.FromHex("#FFFFFF");

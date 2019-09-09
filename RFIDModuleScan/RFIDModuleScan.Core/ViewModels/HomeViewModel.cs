@@ -34,6 +34,19 @@ namespace RFIDModuleScan.Core.ViewModels
             }
         }
 
+        private bool _connectedToGin;
+        public bool ConnectedToGin
+        {
+            get
+            {
+                return _connectedToGin;
+            }
+            private set
+            {
+                Set<bool>(() => ConnectedToGin, ref _connectedToGin, value);
+            }
+        }
+
         private bool _isBusy;
         public bool IsBusy
         {
@@ -68,23 +81,26 @@ namespace RFIDModuleScan.Core.ViewModels
             _emailService = Xamarin.Forms.DependencyService.Get<IEmailService>();
 
             NavigateToAllScansPage = new RelayCommand(this.ExecuteNavigateToAllScansPage, this.CanExecuteNavigateToAllScansPage);
-           
+            NavigateToModuleOwnershipLookupPage = new RelayCommand(this.ExecuteNavigateToModuleOwnershipLookupPage);
             NavigateToSettingsPage = new RelayCommand(this.ExecuteNavigateToSettingsPage, this.CanExecuteNavigateToSettingsPage);            
             NavigateToScanPage = new RelayCommand(this.ExecuteNavigateToScanPage, this.CanExecuteNavigateToScanPage);
             NavigateToDropScanPage = new RelayCommand(this.ExecuteNavigateToDropScanPage);
             TransmitAllCommand = new RelayCommand(this.ExecuteTransmitAllCommand);
             DeleteAllCommand = new RelayCommand(this.ExecuteDeleteAllCommand);
+            SyncCommand = new RelayCommand(this.ExecuteSyncCommand);
             DumpDatabaseCommand = new RelayCommand(this.ExecuteDumpDatabaseCommand);
             AboutCommand = new RelayCommand(this.ExecuteAboutCommand);
 
             IsBusy = false;
             HasData = false;
+            ConnectedToGin = Configuration.ConnectedToGin;
             BusyMessage = "Loading...";
         }
 
         public void Refresh()
         {
             HasData = (_dataService.GetAll<FieldScan>().Count() > 0);
+            ConnectedToGin = Configuration.ConnectedToGin;
         }
 
         public void Initialize()
@@ -93,7 +109,7 @@ namespace RFIDModuleScan.Core.ViewModels
             Task.Run(() =>
             {
                 BusyMessage = "Connecting...";
-                HasData = (_dataService.GetAll<FieldScan>().Count() > 0);
+                HasData = (_dataService.GetAll<FieldScan>().Count() > 0) || (_dataService.GetAllObjects<ModuleOwnership>().Count() > 0);
                 IsBusy = true;              
                 if (ScannerConnectionManager.ScannerContext != null)
                 {
@@ -120,7 +136,10 @@ namespace RFIDModuleScan.Core.ViewModels
                 if (Configuration.ConnectedToGin)
                 {
                     BusyMessage = "Syncing lists";
-                    _dataService.SyncRemoteLists(); //sync client/farm/field lists                    
+                    _dataService.SyncRemoteLists(false); //sync client/farm/field lists    
+
+                    BusyMessage = "Updating module ownership.";
+                    _dataService.SyncOwnership(); //sync module ownership table 
                 }
                 else
                 {
@@ -197,6 +216,22 @@ namespace RFIDModuleScan.Core.ViewModels
             });
         }
 
+        public RelayCommand SyncCommand { get; set; }
+        private void ExecuteSyncCommand()
+        {
+            IsBusy = true;
+            BusyMessage = "Syncing ownership.";
+            Task.Run(() =>
+            {
+                _dataService.SyncOwnership();
+
+                BusyMessage = "Syncing lists.";
+                _dataService.SyncRemoteLists(true);
+                IsBusy = false;                
+                BusyMessage = "Loading...";
+            });
+        }
+
         public RelayCommand DumpDatabaseCommand { get; set; }
         private void ExecuteDumpDatabaseCommand()
         {
@@ -262,5 +297,12 @@ namespace RFIDModuleScan.Core.ViewModels
             private bool CanExecuteNavigateToReviewPage() { return true; }
         #endregion
         */
+
+        public RelayCommand NavigateToModuleOwnershipLookupPage { get; private set; }
+
+        private void ExecuteNavigateToModuleOwnershipLookupPage()
+        {
+            _navigationService.NavigateTo(ViewLocator.OwnershipLookupPage);
+        }
     }
 }
