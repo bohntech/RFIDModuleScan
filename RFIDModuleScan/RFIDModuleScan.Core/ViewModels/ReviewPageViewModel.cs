@@ -356,12 +356,16 @@ namespace RFIDModuleScan.Core.ViewModels
 
                     string body = string.Format("CLIENT: {0}\r\nFARM: {1}\r\nFIELD: {2}\r\n\r\nPlease see attached load list.\r\n", Grower, Farm, Field);
 
-                    IFileService svc = Xamarin.Forms.DependencyService.Get<IFileService>();
-                    string filename = "Transmission-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + extension;
-                    string fullPath = svc.SaveText(filename, file);
+                    body += "<RFID_DATA>\r\n" + file + "</RFID_DATA>";
 
+
+
+                    //IFileService svc = Xamarin.Forms.DependencyService.Get<IFileService>();
+                    string filename = "Transmission-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + extension;
+                    //string fullPath = svc.SaveText(filename, file);
+                    body += "<FILENAME>" + filename + "</FILENAME>";
                     List<string> files = new List<string>();
-                    files.Add(fullPath);
+                    //files.Add(fullPath);
 
                     string toEmail = Configuration.GinEmail ?? "";
                     _emailService.ShowDraft("Load List", body, false, toEmail, files);

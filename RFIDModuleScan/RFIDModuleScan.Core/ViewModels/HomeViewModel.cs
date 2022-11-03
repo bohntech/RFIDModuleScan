@@ -187,12 +187,16 @@ namespace RFIDModuleScan.Core.ViewModels
 
                 string body = "Please see attached list.";
 
-                IFileService svc = Xamarin.Forms.DependencyService.Get<IFileService>();
-                string filename = "AllScans-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + extension;
-                string fullPath = svc.SaveText(filename, file);
+                
 
+                body += "<RFID_DATA>\r\n" + file + "</RFID_DATA>";
+
+                //IFileService svc = Xamarin.Forms.DependencyService.Get<IFileService>();
+                string filename = "AllScans-" + DateTime.Now.ToString("MMddyyyy_hh_mm_ss_tt") + extension;
+                //string fullPath = svc.SaveText(filename, file);
+                body += "<FILENAME>" + filename + "</FILENAME>";
                 List<string> files = new List<string>();
-                files.Add(fullPath);
+                //files.Add(fullPath);
 
                 string toEmail = Configuration.GinEmail ?? "";
                 _emailService.ShowDraft("All Scans", body, false, toEmail, files);
